@@ -24,11 +24,16 @@ export class TradeClient {
   private client: AxiosInstance;
 
   constructor(config: TradeClientConfig) {
+    if (config.userAgent && (!config.userAgent.startsWith('OAuth ') || !/\(contact: .+\)/.test(config.userAgent))) {
+      throw new Error(
+        'User-Agent must start with "OAuth " and include a contact: e.g. "OAuth myapp/1.0.0 (contact: you@example.com)"'
+      );
+    }
     this.client = axios.create({
       baseURL: config.baseURL || 'https://www.pathofexile.com/api/trade2',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': config.userAgent || 'PoE-SDK/1.0.0',
+        'User-Agent': config.userAgent || 'OAuth poe-sdk/1.0.0 (contact: change-me@example.com)',
         'Cookie': `POESESSID=${config.poesessid}`,
         'Accept': '*/*',
         'Connection': 'keep-alive',

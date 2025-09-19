@@ -22,7 +22,7 @@ describe('PoEApiClient', () => {
 
     client = new PoEApiClient({
       accessToken: 'test-token',
-      userAgent: 'TestApp/1.0.0 (contact: test@example.com)',
+      userAgent: 'OAuth TestApp/1.0.0 (contact: test@example.com)',
     });
   });
 
@@ -35,7 +35,7 @@ describe('PoEApiClient', () => {
       expect(mockedAxios.create).toHaveBeenCalledWith({
         baseURL: 'https://api.pathofexile.com',
         headers: {
-          'User-Agent': 'TestApp/1.0.0 (contact: test@example.com)',
+          'User-Agent': 'OAuth TestApp/1.0.0 (contact: test@example.com)',
           Authorization: 'Bearer test-token',
         },
       });
@@ -46,13 +46,13 @@ describe('PoEApiClient', () => {
       mockedAxios.create.mockReturnValue(mockAxiosInstance);
 
       new PoEApiClient({
-        userAgent: 'TestApp/1.0.0 (contact: test@example.com)',
+        userAgent: 'OAuth TestApp/1.0.0 (contact: test@example.com)',
       });
 
       expect(mockedAxios.create).toHaveBeenCalledWith({
         baseURL: 'https://api.pathofexile.com',
         headers: {
-          'User-Agent': 'TestApp/1.0.0 (contact: test@example.com)',
+          'User-Agent': 'OAuth TestApp/1.0.0 (contact: test@example.com)',
         },
       });
     });
@@ -82,27 +82,27 @@ describe('PoEApiClient', () => {
         { id: 'Hardcore', realm: 'pc' as const },
       ];
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockLeagues });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: { leagues: mockLeagues } });
 
       const result = await client.getLeagues();
 
       expect(mockAxiosInstance.get).toHaveBeenCalledWith('/league', {
         params: {},
       });
-      expect(result).toEqual(mockLeagues);
+      expect(result).toEqual({ leagues: mockLeagues });
     });
 
     it('should fetch leagues with realm filter', async () => {
       const mockLeagues = [{ id: 'Standard', realm: 'xbox' as const }];
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockLeagues });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: { leagues: mockLeagues } });
 
       const result = await client.getLeagues('xbox');
 
       expect(mockAxiosInstance.get).toHaveBeenCalledWith('/league', {
         params: { realm: 'xbox' },
       });
-      expect(result).toEqual(mockLeagues);
+      expect(result).toEqual({ leagues: mockLeagues });
     });
   });
 
@@ -120,12 +120,12 @@ describe('PoEApiClient', () => {
         },
       ];
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockCharacters });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: { characters: mockCharacters } });
 
       const result = await client.getCharacters();
 
       expect(mockAxiosInstance.get).toHaveBeenCalledWith('/character');
-      expect(result).toEqual(mockCharacters);
+      expect(result).toEqual({ characters: mockCharacters });
     });
 
     it('should fetch characters with realm', async () => {
@@ -141,12 +141,12 @@ describe('PoEApiClient', () => {
         },
       ];
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockCharacters });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: { characters: mockCharacters } });
 
       const result = await client.getCharacters('xbox');
 
       expect(mockAxiosInstance.get).toHaveBeenCalledWith('/character/xbox');
-      expect(result).toEqual(mockCharacters);
+      expect(result).toEqual({ characters: mockCharacters });
     });
   });
 

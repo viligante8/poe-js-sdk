@@ -115,4 +115,35 @@ export class OAuthHelper {
 
     return response.json();
   }
+
+  /**
+   * Client Credentials grant for service scopes (confidential clients only).
+   * Note: Public clients cannot request service:* scopes.
+   */
+  static async getClientCredentialsToken(
+    config: Pick<OAuthConfig, 'clientId' | 'clientSecret' | 'scopes'>
+  ): Promise<TokenResponse> {
+    if (!config.clientSecret) {
+      throw new Error('Client secret is required for client_credentials grant');
+    }
+
+    const body = new URLSearchParams({
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      grant_type: 'client_credentials',
+      scope: config.scopes.join(' '),
+    });
+
+    const response = await fetch(this.TOKEN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Client credentials failed: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
 }

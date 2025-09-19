@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { PoEApiError } from '../errors/api-error';
 import type {
   Profile,
   League,
@@ -8,6 +9,10 @@ import type {
   LeagueAccount,
   RateLimitInfo,
   Realm,
+  Ladder,
+  LadderEntry,
+  EventLadderEntry,
+  PvPLadderTeamEntry,
 } from '../types';
 
 export interface ClientConfig {
@@ -19,8 +24,16 @@ export interface ClientConfig {
 export class PoEApiClient {
   private client: AxiosInstance;
   private rateLimitInfo: RateLimitInfo = {};
+  private nextAvailableAt = 0; // epoch ms when requests may resume
 
   constructor(config: ClientConfig) {
+    // Enforce User-Agent best practice per docs
+    if (!config.userAgent?.startsWith('OAuth ') || !/\(contact: .+\)/.test(config.userAgent)) {
+      throw new Error(
+        'User-Agent must start with "OAuth " and include a contact: e.g. "OAuth myapp/1.0.0 (contact: you@example.com)"'
+      );
+    }
+
     this.client = axios.create({
       baseURL: config.baseURL || 'https://api.pathofexile.com',
       headers: {
@@ -31,14 +44,47 @@ export class PoEApiClient {
       },
     });
 
+    // Respect rate limits by waiting before requests when needed (guarded for tests)
+    if ((this.client as any).interceptors?.request?.use) {
+      this.client.interceptors.request.use(async (cfg) => {
+        const now = Date.now();
+        if (this.nextAvailableAt > now) {
+          const waitMs = this.nextAvailableAt - now;
+          await new Promise((r) => setTimeout(r, waitMs));
+        }
+        return cfg;
+      });
+    }
+
     this.client.interceptors.response.use(
       (response) => {
         this.updateRateLimitInfo(response);
+        this.updateWaitFromHeaders(response);
         return response;
       },
       (error) => {
         if (error.response) {
           this.updateRateLimitInfo(error.response);
+          this.updateWaitFromHeaders(error.response);
+          // Handle 429 Too Many Requests
+          if (error.response.status === 429) {
+            const retryAfter = error.response.headers['retry-after'];
+            const seconds = retryAfter ? parseInt(retryAfter) : 0;
+            if (!Number.isNaN(seconds) && seconds > 0) {
+              this.nextAvailableAt = Date.now() + seconds * 1000;
+            }
+          }
+          const data = error.response.data;
+          if (data && typeof data === 'object' && 'error' in data && data.error) {
+            const err = (data as any).error;
+            throw new PoEApiError(err.message || 'API error', {
+              code: typeof err.code === 'number' ? err.code : undefined,
+              status: error.response.status,
+              url: error.config?.url,
+              details: data,
+              headers: error.response.headers,
+            });
+          }
         }
         throw error;
       }
@@ -54,6 +100,9 @@ export class PoEApiClient {
       account: headers['x-rate-limit-account'],
       ip: headers['x-rate-limit-ip'],
       client: headers['x-rate-limit-client'],
+      accountState: headers['x-rate-limit-account-state'],
+      ipState: headers['x-rate-limit-ip-state'],
+      clientState: headers['x-rate-limit-client-state'],
       ...(retryAfter && { retryAfter: parseInt(retryAfter) }),
     };
   }
@@ -66,6 +115,32 @@ export class PoEApiClient {
     this.client.defaults.headers.Authorization = `Bearer ${token}`;
   }
 
+  private updateWaitFromHeaders(response: AxiosResponse): void {
+    const headers = response.headers;
+    // If any state header indicates an active restriction (third field > 0), wait that long
+    const states = [
+      headers['x-rate-limit-account-state'],
+      headers['x-rate-limit-ip-state'],
+      headers['x-rate-limit-client-state'],
+    ].filter(Boolean) as string[];
+
+    for (const state of states) {
+      const parts = String(state).split(',');
+      for (const p of parts) {
+        const segs = p.split(':');
+        if (segs.length === 3) {
+          const active = Number.parseInt(segs[2] ?? '0');
+          if (!Number.isNaN(active) && active > 0) {
+            const candidate = Date.now() + active * 1000;
+            if (candidate > this.nextAvailableAt) {
+              this.nextAvailableAt = candidate;
+            }
+          }
+        }
+      }
+    }
+  }
+
   // Profile endpoints
   async getProfile(): Promise<Profile> {
     const response = await this.client.get<Profile>('/profile');
@@ -73,15 +148,37 @@ export class PoEApiClient {
   }
 
   // League endpoints
-  async getLeagues(realm?: Realm): Promise<League[]> {
-    const params = realm ? { realm } : {};
-    const response = await this.client.get<League[]>('/league', { params });
+  async getLeagues(
+    realmOrOptions?:
+      | Realm
+      | {
+          realm?: Realm;
+          type?: 'main' | 'event' | 'season';
+          season?: string; // PoE1 only
+          limit?: number; // max 50
+          offset?: number;
+        }
+  ): Promise<{ leagues: League[] }> {
+    const opts =
+      typeof realmOrOptions === 'string' || realmOrOptions === undefined
+        ? { realm: realmOrOptions as Realm | undefined }
+        : realmOrOptions;
+    const params: Record<string, any> = {};
+    if (opts?.realm) params.realm = opts.realm;
+    if (opts && 'type' in opts && (opts as any).type) params.type = (opts as any).type;
+    if (opts && 'season' in opts && (opts as any).season) params.season = (opts as any).season;
+    if (opts && 'limit' in opts && (opts as any).limit !== undefined)
+      params.limit = (opts as any).limit;
+    if (opts && 'offset' in opts && (opts as any).offset !== undefined)
+      params.offset = (opts as any).offset;
+
+    const response = await this.client.get<{ leagues: League[] }>('/league', { params });
     return response.data;
   }
 
-  async getLeague(leagueId: string, realm?: Realm): Promise<League> {
+  async getLeague(leagueId: string, realm?: Realm): Promise<{ league: League | null }> {
     const params = realm ? { realm } : {};
-    const response = await this.client.get<League>(`/league/${leagueId}`, {
+    const response = await this.client.get<{ league: League | null }>(`/league/${leagueId}`, {
       params,
     });
     return response.data;
@@ -90,38 +187,67 @@ export class PoEApiClient {
   async getLeagueLadder(
     leagueId: string,
     options?: {
-      realm?: Realm;
+      realm?: Exclude<Realm, 'poe2'>;
       offset?: number;
       limit?: number;
-      type?: string;
-      track?: string;
-      accountName?: string;
+      sort?: 'xp' | 'depth' | 'depthsolo' | 'ancestor' | 'time' | 'score' | 'class';
+      class?: 'scion' | 'marauder' | 'ranger' | 'witch' | 'duelist' | 'templar' | 'shadow';
     }
-  ): Promise<any> {
+  ): Promise<{ league: League; ladder: Ladder }> {
+    const params: Record<string, any> = {};
+    if (options?.realm) params.realm = options.realm;
+    if (options?.offset !== undefined) params.offset = options.offset;
+    if (options?.limit !== undefined) params.limit = options.limit;
+    if (options?.sort) params.sort = options.sort;
+    if (options?.class && options.sort === 'class') params.class = options.class;
+
     const response = await this.client.get(`/league/${leagueId}/ladder`, {
-      params: options,
+      params,
+    });
+    return response.data;
+  }
+
+  // League Event Ladder (PoE1 only)
+  async getLeagueEventLadder(
+    leagueId: string,
+    options?: {
+      realm?: Exclude<Realm, 'poe2'>;
+      offset?: number;
+      limit?: number;
+    }
+  ): Promise<{ league: League; ladder: { total: number; entries: EventLadderEntry[] } }> {
+    const params: Record<string, any> = {};
+    if (options?.realm) params.realm = options.realm;
+    if (options?.offset !== undefined) params.offset = options.offset;
+    if (options?.limit !== undefined) params.limit = options.limit;
+
+    const response = await this.client.get(`/league/${leagueId}/event-ladder`, {
+      params,
     });
     return response.data;
   }
 
   // Character endpoints
-  async getCharacters(realm?: Realm): Promise<Character[]> {
+  async getCharacters(realm?: Realm): Promise<{ characters: Character[] }> {
     const url = realm ? `/character/${realm}` : '/character';
-    const response = await this.client.get<Character[]>(url);
+    const response = await this.client.get<{ characters: Character[] }>(url);
     return response.data;
   }
 
-  async getCharacter(name: string, realm?: Realm): Promise<Character> {
+  async getCharacter(name: string, realm?: Realm): Promise<{ character: Character | null }> {
     const url = realm ? `/character/${realm}/${name}` : `/character/${name}`;
-    const response = await this.client.get<Character>(url);
+    const response = await this.client.get<{ character: Character | null }>(url);
     return response.data;
   }
 
   // Stash endpoints (PoE1 only)
-  async getStashes(league: string, realm?: Realm): Promise<StashTab[]> {
+  async getStashes(
+    league: string,
+    realm?: Exclude<Realm, 'poe2'>
+  ): Promise<{ stashes: StashTab[] }> {
     const url = realm ? `/stash/${realm}/${league}` : `/stash/${league}`;
     const response = await this.client.get<{ stashes: StashTab[] }>(url);
-    return response.data.stashes;
+    return response.data;
   }
 
   async getStash(
@@ -129,12 +255,12 @@ export class PoEApiClient {
     stashId: string,
     substashId?: string,
     realm?: Realm
-  ): Promise<StashTab> {
+  ): Promise<{ stash: StashTab | null }> {
     const baseUrl = realm ? `/stash/${realm}/${league}` : `/stash/${league}`;
     const url = substashId
       ? `${baseUrl}/${stashId}/${substashId}`
       : `${baseUrl}/${stashId}`;
-    const response = await this.client.get<StashTab>(url);
+    const response = await this.client.get<{ stash: StashTab | null }>(url);
     return response.data;
   }
 
@@ -142,26 +268,61 @@ export class PoEApiClient {
   async getLeagueAccount(
     league: string,
     realm?: Realm
-  ): Promise<LeagueAccount> {
+  ): Promise<{ league_account: LeagueAccount }> {
     const url = realm
       ? `/league-account/${realm}/${league}`
       : `/league-account/${league}`;
-    const response = await this.client.get<LeagueAccount>(url);
+    const response = await this.client.get<{ league_account: LeagueAccount }>(url);
     return response.data;
   }
 
   // PvP Match endpoints (PoE1 only)
-  async getPvpMatches(realm?: Realm): Promise<PvpMatch[]> {
+  async getPvpMatches(
+    realmOrOptions?:
+      | Realm
+      | {
+          realm?: Exclude<Realm, 'poe2'>;
+          type?: 'upcoming' | 'season' | 'league';
+          season?: string;
+          league?: string;
+        }
+  ): Promise<{ matches: PvpMatch[] }> {
+    const opts =
+      typeof realmOrOptions === 'string' || realmOrOptions === undefined
+        ? { realm: realmOrOptions as Realm | undefined }
+        : realmOrOptions;
+
+    const params: Record<string, any> = {};
+    if (opts?.realm) params.realm = opts.realm;
+    if (opts && 'type' in opts && (opts as any).type) params.type = (opts as any).type;
+    if (opts && 'season' in opts && (opts as any).season)
+      params.season = (opts as any).season;
+    if (opts && 'league' in opts && (opts as any).league)
+      params.league = (opts as any).league;
+
+    const response = await this.client.get<{ matches: PvpMatch[] }>('/pvp-match', { params });
+    return response.data;
+  }
+
+  async getPvpMatch(matchId: string, realm?: Realm): Promise<{ match: PvpMatch | null }> {
     const params = realm ? { realm } : {};
-    const response = await this.client.get<PvpMatch[]>('/pvp-match', {
+    const response = await this.client.get<{ match: PvpMatch | null }>(`/pvp-match/${matchId}`, {
       params,
     });
     return response.data;
   }
 
-  async getPvpMatch(matchId: string, realm?: Realm): Promise<PvpMatch> {
-    const params = realm ? { realm } : {};
-    const response = await this.client.get<PvpMatch>(`/pvp-match/${matchId}`, {
+  // PvP Match Ladder (PoE1 only)
+  async getPvpMatchLadder(
+    matchId: string,
+    options?: { realm?: Exclude<Realm, 'poe2'>; limit?: number; offset?: number }
+  ): Promise<{ match: PvpMatch; ladder: { total: number; entries: PvPLadderTeamEntry[] } }> {
+    const params: Record<string, any> = {};
+    if (options?.realm) params.realm = options.realm;
+    if (options?.limit !== undefined) params.limit = options.limit;
+    if (options?.offset !== undefined) params.offset = options.offset;
+
+    const response = await this.client.get(`/pvp-match/${matchId}/ladder`, {
       params,
     });
     return response.data;
@@ -171,43 +332,103 @@ export class PoEApiClient {
   async getPublicStashes(options?: {
     realm?: Realm;
     id?: string;
-  }): Promise<any> {
+  }): Promise<import('../types').PublicStashesResponse> {
     const url = options?.realm
       ? `/public-stash-tabs/${options.realm}`
       : '/public-stash-tabs';
     const params = options?.id ? { id: options.id } : {};
-    const response = await this.client.get(url, { params });
+    const response = await this.client.get<import('../types').PublicStashesResponse>(url, { params });
     return response.data;
   }
 
   // Currency Exchange API
-  async getCurrencyExchange(realm?: Realm, id?: string): Promise<any> {
+  async getCurrencyExchange(
+    realm?: Exclude<Realm, 'pc'> | 'poe2',
+    id?: string
+  ): Promise<import('../types').CurrencyExchangeResponse> {
     let url = '/currency-exchange';
     if (realm) url += `/${realm}`;
     if (id) url += `/${id}`;
 
-    const response = await this.client.get(url);
+    const response = await this.client.get<import('../types').CurrencyExchangeResponse>(url);
     return response.data;
   }
 
   // Item Filter endpoints
-  async getItemFilters(): Promise<any> {
-    const response = await this.client.get('/item-filter');
+  async getItemFilters(): Promise<{ filters: import('../types').ItemFilter[] }> {
+    const response = await this.client.get<{ filters: import('../types').ItemFilter[] }>(
+      '/item-filter'
+    );
     return response.data;
   }
 
-  async getItemFilter(filterId: string): Promise<any> {
-    const response = await this.client.get(`/item-filter/${filterId}`);
+  async getItemFilter(filterId: string): Promise<{ filter: import('../types').ItemFilter }> {
+    const response = await this.client.get<{ filter: import('../types').ItemFilter }>(
+      `/item-filter/${filterId}`
+    );
     return response.data;
   }
 
-  async createItemFilter(filter: any): Promise<any> {
-    const response = await this.client.post('/item-filter', filter);
+  async createItemFilter(
+    filter: Partial<import('../types').ItemFilter> & { filter_name: string; realm: string; filter: string },
+    options?: { validate?: boolean }
+  ): Promise<{ filter: import('../types').ItemFilter }> {
+    const response = await this.client.post<{ filter: import('../types').ItemFilter }>(
+      '/item-filter',
+      filter,
+      { params: options?.validate ? { validate: true } : {} }
+    );
     return response.data;
   }
 
-  async updateItemFilter(filterId: string, filter: any): Promise<any> {
-    const response = await this.client.post(`/item-filter/${filterId}`, filter);
+  async updateItemFilter(
+    filterId: string,
+    patch: Partial<import('../types').ItemFilter>,
+    options?: { validate?: boolean }
+  ): Promise<{ filter: import('../types').ItemFilter }> {
+    const response = await this.client.post<{ filter: import('../types').ItemFilter }>(
+      `/item-filter/${filterId}`,
+      patch,
+      { params: options?.validate ? { validate: true } : {} }
+    );
+    return response.data;
+  }
+
+  // Account Leagues (PoE1 only)
+  async getAccountLeagues(
+    realm?: Exclude<Realm, 'poe2'>
+  ): Promise<{ leagues: League[] }> {
+    const params = realm ? { realm } : {};
+    const response = await this.client.get<{ leagues: League[] }>(
+      '/account/leagues',
+      { params }
+    );
+    return response.data;
+  }
+
+  // Guild Stashes (PoE1 only)
+  async getGuildStashes(
+    league: string,
+    realm?: Exclude<Realm, 'poe2'>
+  ): Promise<{ stashes: StashTab[] }> {
+    const url = realm ? `/guild/${realm}/stash/${league}` : `/guild/stash/${league}`;
+    const response = await this.client.get<{ stashes: StashTab[] }>(url);
+    return response.data;
+  }
+
+  async getGuildStash(
+    league: string,
+    stashId: string,
+    substashId?: string,
+    realm?: Exclude<Realm, 'poe2'>
+  ): Promise<{ stash: StashTab | null }> {
+    const baseUrl = realm
+      ? `/guild/${realm}/stash/${league}`
+      : `/guild/stash/${league}`;
+    const url = substashId
+      ? `${baseUrl}/${stashId}/${substashId}`
+      : `${baseUrl}/${stashId}`;
+    const response = await this.client.get<{ stash: StashTab | null }>(url);
     return response.data;
   }
 }

@@ -19,7 +19,7 @@ describe('TradeClient', () => {
 
     client = new TradeClient({
       poesessid: 'test-session-id',
-      userAgent: 'TestApp/1.0.0',
+      userAgent: 'OAuth TestApp/1.0.0 (contact: test@example.com)',
     });
   });
 
@@ -33,7 +33,7 @@ describe('TradeClient', () => {
         baseURL: 'https://www.pathofexile.com/api/trade2',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'TestApp/1.0.0',
+          'User-Agent': 'OAuth TestApp/1.0.0 (contact: test@example.com)',
           'Cookie': 'POESESSID=test-session-id',
           'Accept': '*/*',
           'Connection': 'keep-alive',

@@ -3,6 +3,7 @@ export type Realm = 'pc' | 'xbox' | 'sony' | 'poe2';
 export interface Profile {
   uuid: string;
   name: string;
+  locale?: string;
   realm?: Realm;
   guild?: {
     name: string;
@@ -234,6 +235,53 @@ export interface LeagueAccount {
   };
 }
 
+// Ladder types (PoE1 only for league ladders)
+export interface Ladder {
+  total: number;
+  cached_since?: string; // ISO8601
+  entries: LadderEntry[];
+}
+
+export interface LadderEntry {
+  rank: number;
+  dead?: boolean;
+  online?: boolean;
+  character: {
+    name: string;
+    level: number;
+    class: string;
+    experience?: number;
+    id?: string;
+    league?: string;
+  };
+  account?: {
+    name: string;
+    challenges?: { total: number };
+  };
+  time?: string; // ISO8601 for race/event ladders
+  score?: number;
+  depth?: { default?: number; solo?: number };
+}
+
+export interface EventLadderEntry {
+  rank: number;
+  account: { name: string };
+  character?: { name: string; class: string; level: number };
+  time?: number; // seconds
+  score?: number;
+}
+
+export interface PvPLadderTeamEntry {
+  rank: number;
+  rating?: number;
+  wins?: number;
+  losses?: number;
+  team: Array<{
+    account: { name: string };
+    character?: { name: string; class?: string; level?: number };
+  }>;
+}
+
 export interface ApiError {
   error: {
     code: number;
@@ -247,7 +295,61 @@ export interface RateLimitInfo {
   account?: string;
   ip?: string;
   client?: string;
+  accountState?: string;
+  ipState?: string;
+  clientState?: string;
   retryAfter?: number;
+}
+
+// Item Filter
+export type FilterType = 'Normal' | 'Ruthless';
+export interface ItemFilterValidation {
+  valid: boolean;
+  version?: string; // game version
+  validated?: string; // ISO8601
+}
+export interface ItemFilter {
+  id: string;
+  filter_name: string;
+  realm: Realm | 'poe2';
+  description?: string;
+  version?: string;
+  type: FilterType;
+  public?: boolean;
+  filter?: string; // not present when listing all filters
+  validation?: ItemFilterValidation; // not present when listing all filters
+}
+
+// Public Stash API
+export interface PublicStashChange {
+  id: string; // 64 hex
+  public: boolean;
+  accountName?: string | null;
+  stash?: string | null;
+  stashType: string;
+  league?: string | null;
+  items: Item[];
+}
+
+export interface PublicStashesResponse {
+  next_change_id: string;
+  stashes: PublicStashChange[];
+}
+
+// Currency Exchange API
+export interface CurrencyMarketSnapshot {
+  league: string;
+  market_id: string; // e.g. chaos|divine
+  volume_traded: Record<string, number>;
+  lowest_stock: Record<string, number>;
+  highest_stock: Record<string, number>;
+  lowest_ratio: Record<string, number>;
+  highest_ratio: Record<string, number>;
+}
+
+export interface CurrencyExchangeResponse {
+  next_change_id: number; // unix timestamp truncated to hour
+  markets: CurrencyMarketSnapshot[];
 }
 
 // Re-export trade types
