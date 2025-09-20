@@ -9,7 +9,7 @@ describe('PoEApiClient rate limiting & errors', () => {
   let mockAxiosInstance: any;
   let requestHandler: ((cfg: any) => Promise<any>) | undefined;
   let responseFulfilled: ((resp: any) => any) | undefined;
-  let responseRejected: ((err: any) => any) | undefined;
+  let responseRejected: ((error: any) => any) | undefined;
 
   beforeEach(() => {
     jest.useFakeTimers();
@@ -25,14 +25,14 @@ describe('PoEApiClient rate limiting & errors', () => {
       defaults: { headers: {} },
       interceptors: {
         request: {
-          use: jest.fn((fn: any) => {
-            requestHandler = fn;
+          use: jest.fn((function_: any) => {
+            requestHandler = function_;
           }),
         },
         response: {
-          use: jest.fn((ok: any, err: any) => {
+          use: jest.fn((ok: any, error: any) => {
             responseFulfilled = ok;
-            responseRejected = err;
+            responseRejected = error;
           }),
         },
       },
@@ -77,7 +77,7 @@ describe('PoEApiClient rate limiting & errors', () => {
     expect(requestHandler).toBeDefined();
     expect(responseRejected).toBeDefined();
 
-    const err = {
+    const error = {
       response: {
         status: 429,
         headers: { 'retry-after': '7' },
@@ -87,7 +87,7 @@ describe('PoEApiClient rate limiting & errors', () => {
     };
 
     try {
-      responseRejected!(err);
+      responseRejected!(error);
     } catch {
       void 0;
     }
@@ -97,7 +97,7 @@ describe('PoEApiClient rate limiting & errors', () => {
     let resolved = false;
     p.then(() => (resolved = true));
     expect(resolved).toBe(false);
-    await jest.advanceTimersByTimeAsync(7_000);
+    await jest.advanceTimersByTimeAsync(7000);
     await Promise.resolve();
     expect(resolved).toBe(true);
   });
@@ -105,7 +105,7 @@ describe('PoEApiClient rate limiting & errors', () => {
   it('throws PoEApiError on structured API error responses', () => {
     expect(responseRejected).toBeDefined();
 
-    const err = {
+    const error = {
       response: {
         status: 400,
         headers: {},
@@ -114,6 +114,6 @@ describe('PoEApiClient rate limiting & errors', () => {
       config: { url: '/profile' },
     };
 
-    expect(() => responseRejected!(err)).toThrow(PoEApiError);
+    expect(() => responseRejected!(error)).toThrow(PoEApiError);
   });
 });

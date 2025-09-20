@@ -33,7 +33,7 @@ describe('PoEApiClient endpoints', () => {
     const mock = { leagues: [{ id: 'Standard', realm: 'poe2' }] } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.getLeagues({
+    const response = await client.getLeagues({
       realm: 'poe2',
       type: 'main',
       limit: 50,
@@ -42,18 +42,18 @@ describe('PoEApiClient endpoints', () => {
     expect(mockAxiosInstance.get).toHaveBeenCalledWith('/league', {
       params: { realm: 'poe2', type: 'main', limit: 50, offset: 5 },
     });
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('getLeague returns typed envelope and passes realm', async () => {
     const mock = { league: { id: 'Affliction', realm: 'poe2' } } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.getLeague('Affliction', 'poe2');
+    const response = await client.getLeague('Affliction', 'poe2');
     expect(mockAxiosInstance.get).toHaveBeenCalledWith('/league/Affliction', {
       params: { realm: 'poe2' },
     });
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('getLeagueLadder passes params and returns typed envelope', async () => {
@@ -63,7 +63,7 @@ describe('PoEApiClient endpoints', () => {
     } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.getLeagueLadder('Hardcore', {
+    const response = await client.getLeagueLadder('Hardcore', {
       realm: 'pc',
       sort: 'class',
       class: 'witch',
@@ -82,7 +82,7 @@ describe('PoEApiClient endpoints', () => {
         },
       }
     );
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('getLeagueEventLadder returns typed envelope', async () => {
@@ -92,7 +92,7 @@ describe('PoEApiClient endpoints', () => {
     } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.getLeagueEventLadder('Event', {
+    const response = await client.getLeagueEventLadder('Event', {
       realm: 'pc',
       limit: 50,
     });
@@ -102,7 +102,7 @@ describe('PoEApiClient endpoints', () => {
         params: { realm: 'pc', limit: 50 },
       }
     );
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('getPvpMatchLadder returns typed envelope', async () => {
@@ -112,7 +112,7 @@ describe('PoEApiClient endpoints', () => {
     } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.getPvpMatchLadder('S14-CTF', {
+    const response = await client.getPvpMatchLadder('S14-CTF', {
       realm: 'pc',
       limit: 10,
       offset: 0,
@@ -123,29 +123,29 @@ describe('PoEApiClient endpoints', () => {
         params: { realm: 'pc', limit: 10, offset: 0 },
       }
     );
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('getCurrencyExchange builds URL and returns typed response', async () => {
-    const mock = { next_change_id: 123456, markets: [] } as any;
+    const mock = { next_change_id: 123_456, markets: [] } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.getCurrencyExchange('poe2', '123');
+    const response = await client.getCurrencyExchange('poe2', '123');
     expect(mockAxiosInstance.get).toHaveBeenCalledWith(
       '/currency-exchange/poe2/123'
     );
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('getAccountLeagues returns typed envelope', async () => {
     const mock = { leagues: [{ id: 'Standard', realm: 'pc' }] } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.getAccountLeagues('pc');
+    const response = await client.getAccountLeagues('pc');
     expect(mockAxiosInstance.get).toHaveBeenCalledWith('/account/leagues', {
       params: { realm: 'pc' },
     });
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('guild stash endpoints return typed envelopes and build URL correctly', async () => {

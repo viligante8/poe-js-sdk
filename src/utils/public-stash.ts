@@ -23,14 +23,14 @@ export async function* publicStashStream(
   let nextId = options.startId;
   const idle = options.idleWaitMs ?? 2000;
   while (true) {
-    const params: { realm?: Realm; id?: string } = {};
-    if (options.realm !== undefined) params.realm = options.realm as Realm;
-    if (nextId !== undefined) params.id = nextId;
-    const res = await client.getPublicStashes(params);
-    yield res;
-    const sameId = res.next_change_id === nextId;
-    nextId = res.next_change_id;
-    if (res.stashes.length === 0 || sameId) {
+    const parameters: { realm?: Realm; id?: string } = {};
+    if (options.realm !== undefined) parameters.realm = options.realm as Realm;
+    if (nextId !== undefined) parameters.id = nextId;
+    const response = await client.getPublicStashes(parameters);
+    yield response;
+    const sameId = response.next_change_id === nextId;
+    nextId = response.next_change_id;
+    if (response.stashes.length === 0 || sameId) {
       await new Promise((r) => setTimeout(r, idle));
     }
   }

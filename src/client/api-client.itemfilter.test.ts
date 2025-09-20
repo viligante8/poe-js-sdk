@@ -37,9 +37,9 @@ describe('PoEApiClient Item Filters', () => {
     } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.getItemFilters();
+    const response = await client.getItemFilters();
     expect(mockAxiosInstance.get).toHaveBeenCalledWith('/item-filter');
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('getItemFilter returns typed envelope', async () => {
@@ -53,9 +53,9 @@ describe('PoEApiClient Item Filters', () => {
     } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.getItemFilter('f1');
+    const response = await client.getItemFilter('f1');
     expect(mockAxiosInstance.get).toHaveBeenCalledWith('/item-filter/f1');
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('createItemFilter passes validate=true and returns typed envelope', async () => {
@@ -68,11 +68,11 @@ describe('PoEApiClient Item Filters', () => {
     const mock = { filter: { id: 'newid', ...body } } as any;
     mockAxiosInstance.post.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.createItemFilter(body, { validate: true });
+    const response = await client.createItemFilter(body, { validate: true });
     expect(mockAxiosInstance.post).toHaveBeenCalledWith('/item-filter', body, {
       params: { validate: true },
     });
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 
   it('updateItemFilter passes validate=true and returns typed envelope', async () => {
@@ -88,12 +88,14 @@ describe('PoEApiClient Item Filters', () => {
     } as any;
     mockAxiosInstance.post.mockResolvedValueOnce({ data: mock });
 
-    const res = await client.updateItemFilter('f1', patch, { validate: true });
+    const response = await client.updateItemFilter('f1', patch, {
+      validate: true,
+    });
     expect(mockAxiosInstance.post).toHaveBeenCalledWith(
       '/item-filter/f1',
       patch,
       { params: { validate: true } }
     );
-    expect(res).toEqual(mock);
+    expect(response).toEqual(mock);
   });
 });

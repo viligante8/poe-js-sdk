@@ -4,15 +4,15 @@ import {
   TradeRateLimiter,
 } from './trade-enhancements';
 
-describe('groupTradeResults', () => {
-  function makeItem(account: string, amount: number, currency = 'chaos'): any {
-    return {
-      id: Math.random().toString(36).slice(2),
-      listing: { account: { name: account }, price: { amount, currency } },
-      item: { name: 'Test' },
-    } as any;
-  }
+function makeItem(account: string, amount: number, currency = 'chaos'): any {
+  return {
+    id: Math.random().toString(36).slice(2),
+    listing: { account: { name: account }, price: { amount, currency } },
+    item: { name: 'Test' },
+  } as any;
+}
 
+describe('groupTradeResults', () => {
   it('groups items by same account and same price', () => {
     const a = makeItem('acc1', 10);
     const b = makeItem('acc1', 10);
@@ -64,9 +64,9 @@ describe('AdvancedTradeQueryBuilder', () => {
     const group = q.query.stats![0] as any;
     expect(group.filters.length).toBe(3);
     // focus on min values rather than IDs (avoid coupling)
-    const mins = group.filters
-      .map((f: any) => f.value?.min)
-      .sort((a: number, b: number) => a - b);
+    const mins = (
+      group.filters.map((f: any) => f.value?.min) as number[]
+    ).toSorted((a, b) => a - b);
     expect(mins).toEqual([150, 200, 300]);
   });
 });
@@ -84,7 +84,7 @@ describe('TradeRateLimiter', () => {
     const limiter = new TradeRateLimiter();
 
     // For 'search': 5 per 5s
-    for (let i = 0; i < 5; i++) {
+    for (let index = 0; index < 5; index++) {
       expect(limiter.canMakeRequest('search')).toBe(true);
       limiter.recordRequest('search');
     }

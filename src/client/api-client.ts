@@ -94,7 +94,7 @@ export class PoEApiClient {
           // Handle 429 Too Many Requests
           if (error.response.status === 429) {
             const retryAfter = error.response.headers['retry-after'];
-            const seconds = retryAfter ? parseInt(retryAfter) : 0;
+            const seconds = retryAfter ? Number.parseInt(retryAfter) : 0;
             if (!Number.isNaN(seconds) && seconds > 0) {
               this.nextAvailableAt = Date.now() + seconds * 1000;
             }
@@ -106,13 +106,13 @@ export class PoEApiClient {
             'error' in data &&
             (data as { error?: unknown }).error
           ) {
-            const err = (
+            const error_ = (
               data as { error: { code?: unknown; message?: string } }
             ).error;
             const status = error.response.status as number;
-            const urlVal = error.config?.url as string | undefined;
+            const urlValue = error.config?.url as string | undefined;
             const headers = error.response.headers as Record<string, string>;
-            const params: {
+            const parameters: {
               code?: number;
               status: number;
               url?: string;
@@ -123,9 +123,10 @@ export class PoEApiClient {
               details: data,
               headers,
             };
-            if (urlVal) params.url = urlVal;
-            if (typeof err.code === 'number') params.code = err.code as number;
-            throw new PoEApiError(err.message || 'API error', params);
+            if (urlValue) parameters.url = urlValue;
+            if (typeof error_.code === 'number')
+              parameters.code = error_.code as number;
+            throw new PoEApiError(error_.message || 'API error', parameters);
           }
         }
         throw error;
@@ -156,7 +157,7 @@ export class PoEApiClient {
       next.ipState = headers['x-rate-limit-ip-state'] as string;
     if (headers['x-rate-limit-client-state'])
       next.clientState = headers['x-rate-limit-client-state'] as string;
-    if (retryAfter) next.retryAfter = parseInt(retryAfter);
+    if (retryAfter) next.retryAfter = Number.parseInt(retryAfter);
     this.rateLimitInfo = next;
   }
 
@@ -227,31 +228,35 @@ export class PoEApiClient {
           offset?: number;
         }
   ): Promise<{ leagues: League[] }> {
-    const opts =
+    const options =
       typeof realmOrOptions === 'string' || realmOrOptions === undefined
         ? { realm: realmOrOptions as Realm | undefined }
         : realmOrOptions;
-    const params: Record<string, string | number> = {};
-    if (opts?.realm) params.realm = opts.realm;
-    if (opts && 'type' in opts && (opts as { type?: string }).type)
-      params.type = (opts as { type?: string }).type as string;
-    if (opts && 'season' in opts && (opts as { season?: string }).season)
-      params.season = (opts as { season?: string }).season as string;
+    const parameters: Record<string, string | number> = {};
+    if (options?.realm) parameters.realm = options.realm;
+    if (options && 'type' in options && (options as { type?: string }).type)
+      parameters.type = (options as { type?: string }).type as string;
     if (
-      opts &&
-      'limit' in opts &&
-      (opts as { limit?: number }).limit !== undefined
+      options &&
+      'season' in options &&
+      (options as { season?: string }).season
     )
-      params.limit = (opts as { limit?: number }).limit as number;
+      parameters.season = (options as { season?: string }).season as string;
     if (
-      opts &&
-      'offset' in opts &&
-      (opts as { offset?: number }).offset !== undefined
+      options &&
+      'limit' in options &&
+      (options as { limit?: number }).limit !== undefined
     )
-      params.offset = (opts as { offset?: number }).offset as number;
+      parameters.limit = (options as { limit?: number }).limit as number;
+    if (
+      options &&
+      'offset' in options &&
+      (options as { offset?: number }).offset !== undefined
+    )
+      parameters.offset = (options as { offset?: number }).offset as number;
 
     const response = await this.client.get<{ leagues: League[] }>('/league', {
-      params,
+      params: parameters,
     });
     return response.data;
   }
@@ -264,11 +269,11 @@ export class PoEApiClient {
     leagueId: string,
     realm?: Realm
   ): Promise<{ league: League | null }> {
-    const params = realm ? { realm } : {};
+    const parameters = realm ? { realm } : {};
     const response = await this.client.get<{ league: League | null }>(
       `/league/${leagueId}`,
       {
-        params,
+        params: parameters,
       }
     );
     return response.data;
@@ -302,16 +307,16 @@ export class PoEApiClient {
         | 'shadow';
     }
   ): Promise<{ league: League; ladder: Ladder }> {
-    const params: Record<string, string | number> = {};
-    if (options?.realm) params.realm = options.realm;
-    if (options?.offset !== undefined) params.offset = options.offset;
-    if (options?.limit !== undefined) params.limit = options.limit;
-    if (options?.sort) params.sort = options.sort;
+    const parameters: Record<string, string | number> = {};
+    if (options?.realm) parameters.realm = options.realm;
+    if (options?.offset !== undefined) parameters.offset = options.offset;
+    if (options?.limit !== undefined) parameters.limit = options.limit;
+    if (options?.sort) parameters.sort = options.sort;
     if (options?.class && options.sort === 'class')
-      params.class = options.class;
+      parameters.class = options.class;
 
     const response = await this.client.get(`/league/${leagueId}/ladder`, {
-      params,
+      params: parameters,
     });
     return response.data;
   }
@@ -332,13 +337,13 @@ export class PoEApiClient {
     league: League;
     ladder: { total: number; entries: EventLadderEntry[] };
   }> {
-    const params: Record<string, string | number> = {};
-    if (options?.realm) params.realm = options.realm;
-    if (options?.offset !== undefined) params.offset = options.offset;
-    if (options?.limit !== undefined) params.limit = options.limit;
+    const parameters: Record<string, string | number> = {};
+    if (options?.realm) parameters.realm = options.realm;
+    if (options?.offset !== undefined) parameters.offset = options.offset;
+    if (options?.limit !== undefined) parameters.limit = options.limit;
 
     const response = await this.client.get(`/league/${leagueId}/event-ladder`, {
-      params,
+      params: parameters,
     });
     return response.data;
   }
@@ -434,23 +439,31 @@ export class PoEApiClient {
           league?: string;
         }
   ): Promise<{ matches: PvpMatch[] }> {
-    const opts =
+    const options =
       typeof realmOrOptions === 'string' || realmOrOptions === undefined
         ? { realm: realmOrOptions as Realm | undefined }
         : realmOrOptions;
 
-    const params: Record<string, string | number> = {};
-    if (opts?.realm) params.realm = opts.realm;
-    if (opts && 'type' in opts && (opts as { type?: string }).type)
-      params.type = (opts as { type?: string }).type as string;
-    if (opts && 'season' in opts && (opts as { season?: string }).season)
-      params.season = (opts as { season?: string }).season as string;
-    if (opts && 'league' in opts && (opts as { league?: string }).league)
-      params.league = (opts as { league?: string }).league as string;
+    const parameters: Record<string, string | number> = {};
+    if (options?.realm) parameters.realm = options.realm;
+    if (options && 'type' in options && (options as { type?: string }).type)
+      parameters.type = (options as { type?: string }).type as string;
+    if (
+      options &&
+      'season' in options &&
+      (options as { season?: string }).season
+    )
+      parameters.season = (options as { season?: string }).season as string;
+    if (
+      options &&
+      'league' in options &&
+      (options as { league?: string }).league
+    )
+      parameters.league = (options as { league?: string }).league as string;
 
     const response = await this.client.get<{ matches: PvpMatch[] }>(
       '/pvp-match',
-      { params }
+      { params: parameters }
     );
     return response.data;
   }
@@ -463,11 +476,11 @@ export class PoEApiClient {
     matchId: string,
     realm?: Realm
   ): Promise<{ match: PvpMatch | null }> {
-    const params = realm ? { realm } : {};
+    const parameters = realm ? { realm } : {};
     const response = await this.client.get<{ match: PvpMatch | null }>(
       `/pvp-match/${matchId}`,
       {
-        params,
+        params: parameters,
       }
     );
     return response.data;
@@ -489,13 +502,13 @@ export class PoEApiClient {
     match: PvpMatch;
     ladder: { total: number; entries: PvPLadderTeamEntry[] };
   }> {
-    const params: Record<string, string | number> = {};
-    if (options?.realm) params.realm = options.realm;
-    if (options?.limit !== undefined) params.limit = options.limit;
-    if (options?.offset !== undefined) params.offset = options.offset;
+    const parameters: Record<string, string | number> = {};
+    if (options?.realm) parameters.realm = options.realm;
+    if (options?.limit !== undefined) parameters.limit = options.limit;
+    if (options?.offset !== undefined) parameters.offset = options.offset;
 
     const response = await this.client.get(`/pvp-match/${matchId}/ladder`, {
-      params,
+      params: parameters,
     });
     return response.data;
   }
@@ -512,10 +525,10 @@ export class PoEApiClient {
     const url = options?.realm
       ? `/public-stash-tabs/${options.realm}`
       : '/public-stash-tabs';
-    const params = options?.id ? { id: options.id } : {};
+    const parameters = options?.id ? { id: options.id } : {};
     const response = await this.client.get<
       import('../types').PublicStashesResponse
-    >(url, { params });
+    >(url, { params: parameters });
     return response.data;
   }
 
@@ -609,10 +622,10 @@ export class PoEApiClient {
   async getAccountLeagues(
     realm?: Exclude<Realm, 'poe2'>
   ): Promise<{ leagues: League[] }> {
-    const params = realm ? { realm } : {};
+    const parameters = realm ? { realm } : {};
     const response = await this.client.get<{ leagues: League[] }>(
       '/account/leagues',
-      { params }
+      { params: parameters }
     );
     return response.data;
   }

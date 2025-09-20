@@ -120,7 +120,7 @@ describe('PoEApiClient', () => {
           class: 'Witch',
           league: 'Standard',
           level: 90,
-          experience: 1000000,
+          experience: 1_000_000,
         },
       ];
 
@@ -143,7 +143,7 @@ describe('PoEApiClient', () => {
           class: 'Witch',
           league: 'Standard',
           level: 90,
-          experience: 1000000,
+          experience: 1_000_000,
         },
       ];
 

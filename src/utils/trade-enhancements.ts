@@ -102,12 +102,12 @@ export function groupTradeResults(results: TradeItem[]): GroupedTradeResult[] {
 
     // Group by same account and similar price, or same account with recent listings
     const existing = grouped.find(
-      (added, idx) =>
+      (added, index) =>
         (added.listing.account.name === result.listing.account.name &&
           added.listing.price.currency === result.listing.price.currency &&
           added.listing.price.amount === result.listing.price.amount) ||
         (added.listing.account.name === result.listing.account.name &&
-          grouped.length - idx <= 2) // Last or previous listing
+          grouped.length - index <= 2) // Last or previous listing
     );
 
     if (existing) {
@@ -258,11 +258,11 @@ export class AdvancedTradeQueryBuilder {
     if (!this.query.query.filters?.misc_filters) {
       this.query.query.filters!.misc_filters = { filters: {} };
     }
-    influences.forEach((influence) => {
+    for (const influence of influences) {
       this.query.query.filters!.misc_filters!.filters[influence] = {
         option: 'true',
       };
-    });
+    }
     return this;
   }
 

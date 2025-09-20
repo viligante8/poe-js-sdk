@@ -45,38 +45,38 @@ export class LadderPager {
   }
 
   /** Load the first ladder page, resetting state. */
-  async loadFirst(): Promise<Ladder | null> {
+  async loadFirst(): Promise<Ladder> {
     this.offset = 0;
     this.ended = false;
-    const params: Record<string, string | number> = { offset: this.offset };
-    if (this.options.realm !== undefined) params.realm = this.options.realm;
-    if (this.options.sort !== undefined) params.sort = this.options.sort;
-    if (this.options.class !== undefined) params.class = this.options.class;
-    if (this.options.limit !== undefined) params.limit = this.options.limit;
-    const res = await this.client.getLeagueLadder(this.league, params);
-    this.entries = res.ladder.entries;
-    this.total = res.ladder.total;
+    const parameters: Record<string, string | number> = { offset: this.offset };
+    if (this.options.realm !== undefined) parameters.realm = this.options.realm;
+    if (this.options.sort !== undefined) parameters.sort = this.options.sort;
+    if (this.options.class !== undefined) parameters.class = this.options.class;
+    if (this.options.limit !== undefined) parameters.limit = this.options.limit;
+    const response = await this.client.getLeagueLadder(this.league, parameters);
+    this.entries = response.ladder.entries;
+    this.total = response.ladder.total;
     this.offset = this.entries.length;
     if (this.entries.length === 0) this.ended = true;
-    return res.ladder;
+    return response.ladder;
   }
 
-  /** Fetch the next page of ladder entries, or null when no more. */
-  async next(): Promise<LadderEntry[] | null> {
-    if (this.ended) return null;
-    const params: Record<string, string | number> = { offset: this.offset };
-    if (this.options.realm !== undefined) params.realm = this.options.realm;
-    if (this.options.sort !== undefined) params.sort = this.options.sort;
-    if (this.options.class !== undefined) params.class = this.options.class;
-    if (this.options.limit !== undefined) params.limit = this.options.limit;
-    const res = await this.client.getLeagueLadder(this.league, params);
-    const chunk = res.ladder.entries;
+  /** Fetch the next page of ladder entries, or undefined when no more. */
+  async next(): Promise<LadderEntry[] | undefined> {
+    if (this.ended) return undefined;
+    const parameters: Record<string, string | number> = { offset: this.offset };
+    if (this.options.realm !== undefined) parameters.realm = this.options.realm;
+    if (this.options.sort !== undefined) parameters.sort = this.options.sort;
+    if (this.options.class !== undefined) parameters.class = this.options.class;
+    if (this.options.limit !== undefined) parameters.limit = this.options.limit;
+    const response = await this.client.getLeagueLadder(this.league, parameters);
+    const chunk = response.ladder.entries;
     if (!chunk || chunk.length === 0) {
       this.ended = true;
-      return null;
+      return undefined;
     }
     this.entries.push(...chunk);
-    this.total = res.ladder.total;
+    this.total = response.ladder.total;
     this.offset += chunk.length;
     return chunk;
   }

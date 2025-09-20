@@ -19,7 +19,7 @@ export class PoEApiError extends Error {
    */
   constructor(
     message: string,
-    opts: {
+    options: {
       code?: number;
       status: number;
       url?: string;
@@ -29,10 +29,10 @@ export class PoEApiError extends Error {
   ) {
     super(message);
     this.name = 'PoEApiError';
-    this.code = opts.code ?? undefined;
-    this.status = opts.status;
-    this.url = opts.url ?? undefined;
-    this.details = opts.details;
-    this.headers = opts.headers ?? undefined;
+    this.code = options.code ?? undefined;
+    this.status = options.status;
+    this.url = options.url ?? undefined;
+    this.details = options.details;
+    this.headers = options.headers ?? undefined;
   }
 }

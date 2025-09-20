@@ -4,6 +4,7 @@ import globals from 'globals';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
   {
@@ -33,6 +34,12 @@ export default [
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  eslintPluginUnicorn.configs.recommended,
+  {
+    rules: {
+      'unicorn/better-regex': 'warn',
     },
   },
 ];

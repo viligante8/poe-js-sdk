@@ -110,7 +110,7 @@ describe('TradeClient', () => {
       const mockResponse = { result: [] };
       mockAxiosInstance.get.mockResolvedValueOnce({ data: mockResponse });
 
-      const manyIds = Array.from({ length: 15 }, (_, i) => `item${i}`);
+      const manyIds = Array.from({ length: 15 }, (_, index) => `item${index}`);
       await client.fetch(manyIds, 'query-id');
 
       const expectedIds = manyIds.slice(0, 10).join(',');

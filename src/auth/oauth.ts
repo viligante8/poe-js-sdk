@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 /**
  * OAuth configuration used by {@link OAuthHelper}.
@@ -18,7 +18,7 @@ export interface TokenResponse {
   scope: string;
 }
 
-export interface PKCEParams {
+export interface PKCEParameters {
   codeVerifier: string;
   codeChallenge: string;
 }
@@ -36,7 +36,7 @@ export class OAuthHelper {
   /**
    * Generate PKCE code verifier and code challenge (S256).
    */
-  static generatePKCE(): PKCEParams {
+  static generatePKCE(): PKCEParameters {
     const codeVerifier = crypto.randomBytes(32).toString('base64url');
     const codeChallenge = crypto
       .createHash('sha256')
@@ -56,9 +56,9 @@ export class OAuthHelper {
   static buildAuthUrl(
     config: OAuthConfig,
     state: string,
-    pkce?: PKCEParams
+    pkce?: PKCEParameters
   ): string {
-    const params = new URLSearchParams({
+    const parameters = new URLSearchParams({
       client_id: config.clientId,
       response_type: 'code',
       redirect_uri: config.redirectUri,
@@ -67,11 +67,11 @@ export class OAuthHelper {
     });
 
     if (pkce) {
-      params.append('code_challenge', pkce.codeChallenge);
-      params.append('code_challenge_method', 'S256');
+      parameters.append('code_challenge', pkce.codeChallenge);
+      parameters.append('code_challenge_method', 'S256');
     }
 
-    return `${this.AUTH_URL}?${params.toString()}`;
+    return `${this.AUTH_URL}?${parameters.toString()}`;
   }
 
   /**

@@ -1,15 +1,15 @@
 import { LadderPager } from './pagination';
 import type { PoEApiClient } from '../client/api-client';
 
+function makeEntry(rank: number): any {
+  return {
+    rank,
+    character: { name: `c${rank}`, level: 90, class: 'Witch' },
+  } as any;
+}
+
 describe('LadderPager', () => {
   const league = 'Affliction';
-
-  function makeEntry(rank: number): any {
-    return {
-      rank,
-      character: { name: `c${rank}`, level: 90, class: 'Witch' },
-    } as any;
-  }
 
   it('loads first page and aggregates metadata', async () => {
     const getLeagueLadder = jest.fn().mockResolvedValue({
@@ -67,8 +67,8 @@ describe('LadderPager', () => {
     const chunk2 = await pager.next();
 
     expect(chunk1?.length).toBe(2);
-    expect(chunk2).toBeNull();
-    expect(pager.entries.map((e) => e.rank)).toEqual([1, 2, 3, 4]);
+    expect(chunk2).toBeUndefined();
+    expect(pager.entries.map((entry) => entry.rank)).toEqual([1, 2, 3, 4]);
     // Offsets used: 0 (loadFirst), 2 (next), 4 (next)
     expect(getLeagueLadder.mock.calls[0][1]).toMatchObject({ offset: 0 });
     expect(getLeagueLadder.mock.calls[1][1]).toMatchObject({ offset: 2 });
@@ -85,7 +85,7 @@ describe('LadderPager', () => {
     const pager = new LadderPager(client, league, { realm: 'pc' });
     await pager.loadFirst();
     const next = await pager.next();
-    expect(next).toBeNull();
+    expect(next).toBeUndefined();
     expect(pager.entries.length).toBe(0);
   });
 });

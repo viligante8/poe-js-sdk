@@ -55,7 +55,7 @@ describe('OAuthHelper', () => {
 
   describe('exchangeCodeForToken', () => {
     beforeEach(() => {
-      global.fetch = jest.fn();
+      globalThis.fetch = jest.fn();
     });
 
     afterEach(() => {
@@ -70,7 +70,7 @@ describe('OAuthHelper', () => {
         scope: 'account:profile',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       });
@@ -81,7 +81,7 @@ describe('OAuthHelper', () => {
       );
 
       expect(result).toEqual(mockResponse);
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         'https://www.pathofexile.com/oauth/token',
         expect.objectContaining({
           method: 'POST',
@@ -91,7 +91,7 @@ describe('OAuthHelper', () => {
     });
 
     it('should handle token exchange errors', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
         statusText: 'Bad Request',
       });

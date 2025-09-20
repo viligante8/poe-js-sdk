@@ -2,7 +2,7 @@ import { OAuthHelper } from './oauth';
 
 describe('OAuthHelper.getClientCredentialsToken', () => {
   beforeEach(() => {
-    global.fetch = jest.fn();
+    globalThis.fetch = jest.fn();
   });
   afterEach(() => {
     jest.resetAllMocks();
@@ -21,14 +21,14 @@ describe('OAuthHelper.getClientCredentialsToken', () => {
       expires_in: 3600,
       scope: 'service:leagues service:leagues:ladder',
     };
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(token),
     });
 
-    const res = await OAuthHelper.getClientCredentialsToken(base);
-    expect(res).toEqual(token);
-    expect(global.fetch).toHaveBeenCalledWith(
+    const response = await OAuthHelper.getClientCredentialsToken(base);
+    expect(response).toEqual(token);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       'https://www.pathofexile.com/oauth/token',
       expect.objectContaining({
         method: 'POST',
@@ -38,7 +38,7 @@ describe('OAuthHelper.getClientCredentialsToken', () => {
   });
 
   it('throws on non-ok response', async () => {
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       statusText: 'Forbidden',
     });
