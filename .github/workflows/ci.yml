@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [18.x, 20.x]
+        node: [20.x, 22.x]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,3 +22,19 @@ jobs:
       - run: npm run type-check
       - run: npm run lint
       - run: npm test -- --ci
+      - name: Generate Coverage Summary
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: coverage/lcov.info
+          badge: true
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          output: both
+      - name: Post Coverage Comment
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: code-coverage-results.md
