@@ -21,7 +21,10 @@ describe('OAuthHelper.getClientCredentialsToken', () => {
       expires_in: 3600,
       scope: 'service:leagues service:leagues:ladder',
     };
-    (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(token) });
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(token),
+    });
 
     const res = await OAuthHelper.getClientCredentialsToken(base);
     expect(res).toEqual(token);
@@ -35,13 +38,21 @@ describe('OAuthHelper.getClientCredentialsToken', () => {
   });
 
   it('throws on non-ok response', async () => {
-    (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false, statusText: 'Forbidden' });
-    await expect(OAuthHelper.getClientCredentialsToken(base)).rejects.toThrow('Client credentials failed: Forbidden');
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      statusText: 'Forbidden',
+    });
+    await expect(OAuthHelper.getClientCredentialsToken(base)).rejects.toThrow(
+      'Client credentials failed: Forbidden'
+    );
   });
 
   it('requires clientSecret', async () => {
     await expect(
-      OAuthHelper.getClientCredentialsToken({ clientId: 'cid', scopes: ['service:psapi'] }) as any
+      OAuthHelper.getClientCredentialsToken({
+        clientId: 'cid',
+        scopes: ['service:psapi'],
+      }) as any
     ).rejects.toThrow('Client secret is required for client_credentials grant');
   });
 });

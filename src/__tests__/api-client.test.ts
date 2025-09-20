@@ -82,7 +82,9 @@ describe('PoEApiClient', () => {
         { id: 'Hardcore', realm: 'pc' as const },
       ];
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: { leagues: mockLeagues } });
+      mockAxiosInstance.get.mockResolvedValueOnce({
+        data: { leagues: mockLeagues },
+      });
 
       const result = await client.getLeagues();
 
@@ -95,7 +97,9 @@ describe('PoEApiClient', () => {
     it('should fetch leagues with realm filter', async () => {
       const mockLeagues = [{ id: 'Standard', realm: 'xbox' as const }];
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: { leagues: mockLeagues } });
+      mockAxiosInstance.get.mockResolvedValueOnce({
+        data: { leagues: mockLeagues },
+      });
 
       const result = await client.getLeagues('xbox');
 
@@ -120,7 +124,9 @@ describe('PoEApiClient', () => {
         },
       ];
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: { characters: mockCharacters } });
+      mockAxiosInstance.get.mockResolvedValueOnce({
+        data: { characters: mockCharacters },
+      });
 
       const result = await client.getCharacters();
 
@@ -141,7 +147,9 @@ describe('PoEApiClient', () => {
         },
       ];
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: { characters: mockCharacters } });
+      mockAxiosInstance.get.mockResolvedValueOnce({
+        data: { characters: mockCharacters },
+      });
 
       const result = await client.getCharacters('xbox');
 

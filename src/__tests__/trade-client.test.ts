@@ -1,6 +1,10 @@
 import axios from 'axios';
 import { TradeClient } from '../client/trade-client';
-import { TradeQueryBuilder, ItemCategories, Currencies } from '../utils/trade-query-builder';
+import {
+  TradeQueryBuilder,
+  ItemCategories,
+  Currencies,
+} from '../utils/trade-query-builder';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -34,9 +38,9 @@ describe('TradeClient', () => {
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'OAuth TestApp/1.0.0 (contact: test@example.com)',
-          'Cookie': 'POESESSID=test-session-id',
-          'Accept': '*/*',
-          'Connection': 'keep-alive',
+          Cookie: 'POESESSID=test-session-id',
+          Accept: '*/*',
+          Connection: 'keep-alive',
         },
       });
     });
@@ -59,7 +63,10 @@ describe('TradeClient', () => {
 
       const result = await client.search('Standard', query);
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/search/pc/Standard', query);
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith(
+        '/search/pc/Standard',
+        query
+      );
       expect(result).toEqual(mockResponse);
     });
 
@@ -70,7 +77,10 @@ describe('TradeClient', () => {
       const query = new TradeQueryBuilder().build();
       await client.search('Standard', query, 'poe2');
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/search/poe2/Standard', query);
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith(
+        '/search/poe2/Standard',
+        query
+      );
     });
   });
 
@@ -90,7 +100,9 @@ describe('TradeClient', () => {
 
       const result = await client.fetch(['item1', 'item2'], 'query-id');
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/fetch/item1,item2?query=query-id');
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+        '/fetch/item1,item2?query=query-id'
+      );
       expect(result).toEqual(mockResponse);
     });
 
@@ -102,7 +114,9 @@ describe('TradeClient', () => {
       await client.fetch(manyIds, 'query-id');
 
       const expectedIds = manyIds.slice(0, 10).join(',');
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/fetch/${expectedIds}?query=query-id`);
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
+        `/fetch/${expectedIds}?query=query-id`
+      );
     });
   });
 
@@ -133,7 +147,12 @@ describe('TradeClient', () => {
     });
 
     it('should handle empty search results', async () => {
-      const searchResponse = { id: 'query-id', complexity: 1, result: [], total: 0 };
+      const searchResponse = {
+        id: 'query-id',
+        complexity: 1,
+        result: [],
+        total: 0,
+      };
       mockAxiosInstance.post.mockResolvedValueOnce({ data: searchResponse });
 
       const query = new TradeQueryBuilder().build();
@@ -161,7 +180,9 @@ describe('TradeQueryBuilder', () => {
       .build();
 
     expect(query.query.status?.option).toBe('online');
-    expect(query.query.filters?.type_filters?.filters.category?.option).toBe('accessory.ring');
+    expect(query.query.filters?.type_filters?.filters.category?.option).toBe(
+      'accessory.ring'
+    );
     expect(query.query.filters?.trade_filters?.filters.price).toEqual({
       option: 'chaos',
       min: 1,
@@ -187,7 +208,11 @@ describe('TradeQueryBuilder', () => {
     const query1 = builder.category('weapon.sword').build();
     const query2 = builder.reset().category('armour.helmet').build();
 
-    expect(query1.query.filters?.type_filters?.filters.category?.option).toBe('weapon.sword');
-    expect(query2.query.filters?.type_filters?.filters.category?.option).toBe('armour.helmet');
+    expect(query1.query.filters?.type_filters?.filters.category?.option).toBe(
+      'weapon.sword'
+    );
+    expect(query2.query.filters?.type_filters?.filters.category?.option).toBe(
+      'armour.helmet'
+    );
   });
 });

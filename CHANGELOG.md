@@ -31,7 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `getCurrencyExchange` returns `CurrencyExchangeResponse`
 - Enforce compliant `User-Agent` for both `PoEApiClient` and `TradeClient` (must start with `OAuth ` and include `(contact: ...)`).
 - README rewritten to document service scopes, rate‑limit behavior, typed envelopes, and new helpers.
+- Project/package renamed to `poe-js-sdk` (previously referenced as `poe-api-sdk`/`poe-sdk`).
 ### Technical
 - Tests significantly expanded; coverage ~78% statements. Utilities ~86–100%.
 - Full TypeScript strict mode compliance maintained.
- - CI added for tests/lint/type-check. Release workflow creates GitHub Releases on `v*.*.*` tags and uploads `dist/` artifacts.
+- CI added for tests/lint/type-check. Release workflow creates GitHub Releases on `v*.*.*` tags and uploads `dist/` artifacts.

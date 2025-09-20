@@ -5,7 +5,7 @@ This guide will help you get up and running with the Path of Exile API SDK quick
 ## Installation
 
 ```bash
-npm install poe-api-sdk
+npm install poe-js-sdk
 ```
 
 ## Quick Start Examples
@@ -13,7 +13,7 @@ npm install poe-api-sdk
 ### 1. Official API - Get Your Profile
 
 ```typescript
-import { PoEApiClient, OAuthHelper } from 'poe-api-sdk';
+import { PoEApiClient, OAuthHelper } from 'poe-js-sdk';
 
 // First, set up OAuth (one-time setup)
 const oauthConfig = {
@@ -46,7 +46,7 @@ console.log(`Hello, ${profile.name}!`);
 ### 2. Trade Search - Find Items
 
 ```typescript
-import { TradeClient, TradeQueryBuilder, ItemCategories, Currencies } from 'poe-api-sdk';
+import { TradeClient, TradeQueryBuilder, ItemCategories, Currencies } from 'poe-js-sdk';
 
 // Get POESESSID from browser cookies (see README for details)
 const tradeClient = new TradeClient({
@@ -81,7 +81,7 @@ import {
   ENHANCED_CURRENCIES,
   COMMON_STAT_IDS,
   groupTradeResults 
-} from 'poe-api-sdk';
+} from 'poe-js-sdk';
 
 // Search for PoE2 crossbows with high DPS
 const weaponQuery = new AdvancedTradeQueryBuilder()
@@ -110,7 +110,7 @@ grouped.forEach(item => {
 ### 4. Rate-Limited Trading
 
 ```typescript
-import { TradeRateLimiter } from 'poe-api-sdk';
+import { TradeRateLimiter } from 'poe-js-sdk';
 
 const rateLimiter = new TradeRateLimiter();
 

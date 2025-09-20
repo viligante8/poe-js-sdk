@@ -4,13 +4,13 @@ import type { TradeSearchQuery, TradeItem } from '../types';
 export const ENHANCED_CATEGORIES = {
   // PoE2 specific categories
   CROSSBOW: 'weapon.crossbow',
-  FOCUS: 'armour.focus', 
+  FOCUS: 'armour.focus',
   SPEAR: 'weapon.spear',
   FLAIL: 'weapon.flail',
   BUCKLER: 'armour.buckler',
   RUNE_DAGGER: 'weapon.runedagger',
   WARSTAFF: 'weapon.warstaff',
-  
+
   // Enhanced PoE1 categories
   CLUSTER_JEWEL: 'jewel.cluster',
   ABYSS_JEWEL: 'jewel.abyss',
@@ -35,7 +35,7 @@ export const ENHANCED_CURRENCIES = {
   PERFECT_AUG: 'perfect-orb-of-augmentation',
   GREATER_CHAOS: 'greater-chaos-orb',
   PERFECT_CHAOS: 'perfect-chaos-orb',
-  
+
   // Standard currencies
   CHAOS: 'chaos',
   EXALTED: 'exalted',
@@ -55,29 +55,29 @@ export const COMMON_STAT_IDS = {
   LIFE: 'explicit.stat_3299347043',
   ENERGY_SHIELD: 'explicit.stat_2901986750',
   MANA: 'explicit.stat_1050105434',
-  
+
   // Resistances
   FIRE_RES: 'explicit.stat_4220027924',
-  COLD_RES: 'explicit.stat_3441501978', 
+  COLD_RES: 'explicit.stat_3441501978',
   LIGHTNING_RES: 'explicit.stat_1671376347',
   CHAOS_RES: 'explicit.stat_2923486259',
   ALL_RES: 'explicit.stat_3372524247',
-  
+
   // Damage
   ADDED_PHYS_DAMAGE: 'explicit.stat_1940865751',
   INCREASED_PHYS_DAMAGE: 'explicit.stat_1509134228',
   ADDED_FIRE_DAMAGE: 'explicit.stat_1334060246',
   ADDED_COLD_DAMAGE: 'explicit.stat_2387423236',
   ADDED_LIGHTNING_DAMAGE: 'explicit.stat_1754445556',
-  
+
   // Attack/Cast Speed
   ATTACK_SPEED: 'explicit.stat_681332047',
   CAST_SPEED: 'explicit.stat_2891184298',
-  
+
   // Critical
   CRIT_CHANCE: 'explicit.stat_587431675',
   CRIT_MULTI: 'explicit.stat_3556824919',
-  
+
   // Movement
   MOVEMENT_SPEED: 'explicit.stat_2250533757',
 } as const;
@@ -91,41 +91,49 @@ export interface GroupedTradeResult extends TradeItem {
 
 export function groupTradeResults(results: TradeItem[]): GroupedTradeResult[] {
   const grouped: GroupedTradeResult[] = [];
-  
+
   for (const result of results) {
     if (!result) continue;
-    
+
     if (grouped.length === 0) {
       grouped.push({ ...result, listedTimes: 1 });
       continue;
     }
-    
+
     // Group by same account and similar price, or same account with recent listings
-    const existing = grouped.find((added, idx) => 
-      (added.listing.account.name === result.listing.account.name &&
-       added.listing.price.currency === result.listing.price.currency &&
-       added.listing.price.amount === result.listing.price.amount) ||
-      (added.listing.account.name === result.listing.account.name && 
-       grouped.length - idx <= 2) // Last or previous listing
+    const existing = grouped.find(
+      (added, idx) =>
+        (added.listing.account.name === result.listing.account.name &&
+          added.listing.price.currency === result.listing.price.currency &&
+          added.listing.price.amount === result.listing.price.amount) ||
+        (added.listing.account.name === result.listing.account.name &&
+          grouped.length - idx <= 2) // Last or previous listing
     );
-    
+
     if (existing) {
       existing.listedTimes += 1;
       // Calculate price range for grouped items
       if (!existing.priceRange) {
-        existing.priceRange = { 
-          min: existing.listing.price.amount, 
-          max: existing.listing.price.amount 
+        existing.priceRange = {
+          min: existing.listing.price.amount,
+          max: existing.listing.price.amount,
         };
       }
-      existing.priceRange.min = Math.min(existing.priceRange.min, result.listing.price.amount);
-      existing.priceRange.max = Math.max(existing.priceRange.max, result.listing.price.amount);
-      existing.averagePrice = (existing.priceRange.min + existing.priceRange.max) / 2;
+      existing.priceRange.min = Math.min(
+        existing.priceRange.min,
+        result.listing.price.amount
+      );
+      existing.priceRange.max = Math.max(
+        existing.priceRange.max,
+        result.listing.price.amount
+      );
+      existing.averagePrice =
+        (existing.priceRange.min + existing.priceRange.max) / 2;
     } else {
       grouped.push({ ...result, listedTimes: 1 });
     }
   }
-  
+
   return grouped;
 }
 
@@ -145,7 +153,7 @@ export class AdvancedTradeQueryBuilder {
   pseudoStats(stats: Array<{ id: string; min?: number; max?: number }>): this {
     const pseudoGroup = {
       type: 'and' as const,
-      filters: stats.map(stat => ({
+      filters: stats.map((stat) => ({
         id: `pseudo.${stat.id}`,
         value: {
           ...(stat.min !== undefined && { min: stat.min }),
@@ -162,7 +170,9 @@ export class AdvancedTradeQueryBuilder {
    * Add total resistance filter (common PoE search)
    */
   totalResistance(min: number): this {
-    return this.pseudoStats([{ id: 'pseudo.pseudo_total_elemental_resistance', min }]);
+    return this.pseudoStats([
+      { id: 'pseudo.pseudo_total_elemental_resistance', min },
+    ]);
   }
 
   /**
@@ -177,9 +187,12 @@ export class AdvancedTradeQueryBuilder {
    */
   weaponDPS(physMin?: number, eleDMin?: number, totalMin?: number): this {
     const dpsStats = [];
-    if (physMin) dpsStats.push({ id: 'pseudo.pseudo_physical_dps', min: physMin });
-    if (eleDMin) dpsStats.push({ id: 'pseudo.pseudo_elemental_dps', min: eleDMin });
-    if (totalMin) dpsStats.push({ id: 'pseudo.pseudo_total_dps', min: totalMin });
+    if (physMin)
+      dpsStats.push({ id: 'pseudo.pseudo_physical_dps', min: physMin });
+    if (eleDMin)
+      dpsStats.push({ id: 'pseudo.pseudo_elemental_dps', min: eleDMin });
+    if (totalMin)
+      dpsStats.push({ id: 'pseudo.pseudo_total_dps', min: totalMin });
     return this.pseudoStats(dpsStats);
   }
 
@@ -233,7 +246,7 @@ export class AdvancedTradeQueryBuilder {
       this.query.query.filters!.misc_filters = { filters: {} };
     }
     this.query.query.filters!.misc_filters.filters.corrupted = {
-      option: isCorrupted ? 'true' : 'false'
+      option: isCorrupted ? 'true' : 'false',
     };
     return this;
   }
@@ -245,8 +258,10 @@ export class AdvancedTradeQueryBuilder {
     if (!this.query.query.filters?.misc_filters) {
       this.query.query.filters!.misc_filters = { filters: {} };
     }
-    influences.forEach(influence => {
-      this.query.query.filters!.misc_filters!.filters[influence] = { option: 'true' };
+    influences.forEach((influence) => {
+      this.query.query.filters!.misc_filters!.filters[influence] = {
+        option: 'true',
+      };
     });
     return this;
   }
@@ -258,7 +273,10 @@ export class AdvancedTradeQueryBuilder {
 
 // Rate limiting helpers from both tools
 export class TradeRateLimiter {
-  private limits: Map<string, { requests: number[]; maxRequests: number; windowMs: number }> = new Map();
+  private limits: Map<
+    string,
+    { requests: number[]; maxRequests: number; windowMs: number }
+  > = new Map();
 
   constructor() {
     // Default rate limits based on PoE API
@@ -272,8 +290,10 @@ export class TradeRateLimiter {
 
     const now = Date.now();
     // Remove old requests outside the window
-    limit.requests = limit.requests.filter(time => now - time < limit.windowMs);
-    
+    limit.requests = limit.requests.filter(
+      (time) => now - time < limit.windowMs
+    );
+
     return limit.requests.length < limit.maxRequests;
   }
 

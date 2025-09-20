@@ -8,18 +8,19 @@ Typed client for the official Path of Exile API (PoE1 + limited PoE2) with:
 
 Server: `https://api.pathofexile.com`
 
-This SDK follows the official docs found in `../poe-docs`.
+This SDK follows the official docs found on https://www.pathofexile.com/developer/docs.
+
+> Note: This package was renamed. Former names you might see in older docs or code:
+> - `poe-api-sdk`
+> - `poe-sdk`
+> The current and correct name is `poe-js-sdk`.
 
 ## Install
-
-```
-npm install poe-api-sdk
-```
 
 Install from GitHub (for SSR):
 
 ```
-npm install github:your-org/poe-api-sdk
+npm install github:viligante8/poe-js-sdk
 ```
 
 Note: when installing from a Git repo, npm runs the `prepare` script to build `dist/`. If your CI disables lifecycle scripts (e.g. `--ignore-scripts`), SSR may fail to resolve the entry. Ensure `prepare` runs or build manually (`npm run build`).
@@ -30,12 +31,12 @@ Note: when installing from a Git repo, npm runs the `prepare` script to build `d
 - OAuth: `OAuthHelper`
 - Types: `Profile`, `League`, `Character`, `Item`, `StashTab`, `PvpMatch`, `LeagueAccount`, `Ladder`, `LadderEntry`, `EventLadderEntry`, `PvPLadderTeamEntry`, `ItemFilter`, `PublicStashesResponse`, `CurrencyExchangeResponse`, `RateLimitInfo`, `Realm`, trade types
 
-Type definitions are included in `dist/index.d.ts` and re-exported from the entry. You can `import type { ... } from 'poe-api-sdk'` directly.
+Type definitions are included in `dist/index.d.ts` and re-exported from the entry. You can `import type { ... } from 'poe-js-sdk'` directly.
 
 ## Quick Start
 
 ```ts
-import { PoEApiClient } from 'poe-api-sdk';
+import { PoEApiClient } from 'poe-js-sdk';
 
 const client = new PoEApiClient({
   userAgent: 'OAuth myapp/1.0.0 (contact: dev@example.com)',
@@ -54,7 +55,7 @@ console.log(profile.name);
 - Client Credentials (service scopes, confidential clients only)
 
 ```ts
-import { OAuthHelper } from 'poe-api-sdk';
+import { OAuthHelper } from 'poe-js-sdk';
 
 // 1) PKCE auth URL (public or confidential)
 const state = crypto.randomUUID();
@@ -144,7 +145,7 @@ Best practices:
 `TradeClient` uses the website endpoints and requires a `POESESSID` cookie.
 
 ```ts
-import { TradeClient } from 'poe-api-sdk';
+import { TradeClient } from 'poe-js-sdk';
 
 const trade = new TradeClient({
   poesessid: process.env.POESESSID!,
@@ -174,7 +175,7 @@ await client.getCharacters('poe2');
 await client.getGuildStashes('Standard');
 
 // Ladder pagination helper
-import { LadderPager } from 'poe-api-sdk';
+import { LadderPager } from 'poe-js-sdk';
 const pager = new LadderPager(client, 'Affliction', { realm: 'pc', limit: 200 });
 await pager.loadFirst();
 while (await pager.next()) {
@@ -182,7 +183,7 @@ while (await pager.next()) {
 }
 
 // Public stash streaming
-import { publicStashStream } from 'poe-api-sdk';
+import { publicStashStream } from 'poe-js-sdk';
 for await (const chunk of publicStashStream(client, { realm: 'pc', idleWaitMs: 2000 })) {
   // chunk.stashes ...
   break; // stop when you want

@@ -48,7 +48,7 @@ Update the `CONFIG` object in `comprehensive-test.ts`:
 const CONFIG = {
   accessToken: process.env.POE_ACCESS_TOKEN || 'your-access-token-here',
   poesessid: process.env.POE_SESSION_ID || 'your-poesessid-here',
-  userAgent: 'PoE-SDK-Test/1.0.0 (contact: test@example.com)',
+  userAgent: 'poe-js-sdk-Test/1.0.0 (contact: test@example.com)',
   testLeague: 'Standard', // Change to current league
   clientId: 'your-client-id',
   redirectUri: 'http://localhost:8080/callback'

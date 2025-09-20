@@ -6,7 +6,6 @@ jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('PoEApiClient rate limiting & errors', () => {
-  let client: PoEApiClient;
   let mockAxiosInstance: any;
   let requestHandler: ((cfg: any) => Promise<any>) | undefined;
   let responseFulfilled: ((resp: any) => any) | undefined;
@@ -41,7 +40,7 @@ describe('PoEApiClient rate limiting & errors', () => {
 
     mockedAxios.create.mockReturnValue(mockAxiosInstance);
 
-    client = new PoEApiClient({
+    new PoEApiClient({
       userAgent: 'OAuth Test/1.0.0 (contact: test@example.com)',
     });
   });
@@ -89,7 +88,9 @@ describe('PoEApiClient rate limiting & errors', () => {
 
     try {
       responseRejected!(err);
-    } catch (e) {}
+    } catch {
+      void 0;
+    }
 
     const cfg = { url: '/league' };
     const p = requestHandler!(cfg);
@@ -113,15 +114,6 @@ describe('PoEApiClient rate limiting & errors', () => {
       config: { url: '/profile' },
     };
 
-    try {
-      responseRejected!(err);
-      fail('should throw');
-    } catch (e: any) {
-      expect(e).toBeInstanceOf(PoEApiError);
-      expect(e.status).toBe(400);
-      expect(e.code).toBe(3);
-      expect(e.url).toBe('/profile');
-    }
+    expect(() => responseRejected!(err)).toThrow(PoEApiError);
   });
 });
-

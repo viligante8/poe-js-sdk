@@ -25,7 +25,11 @@ export class TradeClient {
   private client: AxiosInstance;
 
   constructor(config: TradeClientConfig) {
-    if (config.userAgent && (!config.userAgent.startsWith('OAuth ') || !/\(contact: .+\)/.test(config.userAgent))) {
+    if (
+      config.userAgent &&
+      (!config.userAgent.startsWith('OAuth ') ||
+        !/\(contact: .+\)/.test(config.userAgent))
+    ) {
       throw new Error(
         'User-Agent must start with "OAuth " and include a contact: e.g. "OAuth myapp/1.0.0 (contact: you@example.com)"'
       );
@@ -34,10 +38,12 @@ export class TradeClient {
       baseURL: config.baseURL || 'https://www.pathofexile.com/api/trade2',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': config.userAgent || 'OAuth poe-sdk/1.0.0 (contact: change-me@example.com)',
-        'Cookie': `POESESSID=${config.poesessid}`,
-        'Accept': '*/*',
-        'Connection': 'keep-alive',
+        'User-Agent':
+          config.userAgent ||
+          'OAuth poe-js-sdk/1.0.0 (contact: change-me@example.com)',
+        Cookie: `POESESSID=${config.poesessid}`,
+        Accept: '*/*',
+        Connection: 'keep-alive',
       },
     });
   }
@@ -64,12 +70,11 @@ export class TradeClient {
    * @param resultIds Array of result IDs from search response
    * @param queryId Query ID from search response
    * @param realm Realm ('pc', 'xbox', 'sony', 'poe2')
-    * @see https://www.pathofexile.com/trade/fetch
+   * @see https://www.pathofexile.com/trade/fetch
    */
   async fetch(
     resultIds: string[],
-    queryId: string,
-    realm: Realm = 'pc'
+    queryId: string
   ): Promise<TradeFetchResponse> {
     const ids = resultIds.slice(0, 10).join(','); // Limit to 10 items
     const url = `/fetch/${ids}?query=${queryId}`;
@@ -91,7 +96,7 @@ export class TradeClient {
     realm: Realm = 'pc'
   ): Promise<{ search: TradeSearchResponse; items: TradeFetchResponse }> {
     const searchResult = await this.search(league, query, realm);
-    
+
     if (searchResult.result.length === 0) {
       return {
         search: searchResult,
@@ -101,8 +106,7 @@ export class TradeClient {
 
     const itemsResult = await this.fetch(
       searchResult.result.slice(0, limit),
-      searchResult.id,
-      realm
+      searchResult.id
     );
 
     return {
@@ -120,8 +124,7 @@ export class TradeClient {
    */
   async getWhisper(
     itemId: string,
-    queryId: string,
-    realm: Realm = 'pc'
+    queryId: string
   ): Promise<{ whisper: string }> {
     const url = `/whisper/${itemId}?query=${queryId}`;
     const response = await this.client.get<{ whisper: string }>(url);

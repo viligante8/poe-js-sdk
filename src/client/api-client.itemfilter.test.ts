@@ -30,7 +30,11 @@ describe('PoEApiClient Item Filters', () => {
   });
 
   it('getItemFilters returns typed envelope', async () => {
-    const mock = { filters: [{ id: 'f1', filter_name: 'MyFilter', realm: 'poe2', type: 'Normal' }] } as any;
+    const mock = {
+      filters: [
+        { id: 'f1', filter_name: 'MyFilter', realm: 'poe2', type: 'Normal' },
+      ],
+    } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
     const res = await client.getItemFilters();
@@ -39,7 +43,14 @@ describe('PoEApiClient Item Filters', () => {
   });
 
   it('getItemFilter returns typed envelope', async () => {
-    const mock = { filter: { id: 'f1', filter_name: 'MyFilter', realm: 'poe2', type: 'Normal' } } as any;
+    const mock = {
+      filter: {
+        id: 'f1',
+        filter_name: 'MyFilter',
+        realm: 'poe2',
+        type: 'Normal',
+      },
+    } as any;
     mockAxiosInstance.get.mockResolvedValueOnce({ data: mock });
 
     const res = await client.getItemFilter('f1');
@@ -58,17 +69,23 @@ describe('PoEApiClient Item Filters', () => {
     mockAxiosInstance.post.mockResolvedValueOnce({ data: mock });
 
     const res = await client.createItemFilter(body, { validate: true });
-    expect(mockAxiosInstance.post).toHaveBeenCalledWith(
-      '/item-filter',
-      body,
-      { params: { validate: true } }
-    );
+    expect(mockAxiosInstance.post).toHaveBeenCalledWith('/item-filter', body, {
+      params: { validate: true },
+    });
     expect(res).toEqual(mock);
   });
 
   it('updateItemFilter passes validate=true and returns typed envelope', async () => {
     const patch = { description: 'Updated desc' } as any;
-    const mock = { filter: { id: 'f1', filter_name: 'MyFilter', realm: 'poe2', type: 'Ruthless', description: 'Updated desc' } } as any;
+    const mock = {
+      filter: {
+        id: 'f1',
+        filter_name: 'MyFilter',
+        realm: 'poe2',
+        type: 'Ruthless',
+        description: 'Updated desc',
+      },
+    } as any;
     mockAxiosInstance.post.mockResolvedValueOnce({ data: mock });
 
     const res = await client.updateItemFilter('f1', patch, { validate: true });

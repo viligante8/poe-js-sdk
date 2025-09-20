@@ -5,7 +5,7 @@ import {
 } from './trade-enhancements';
 
 describe('groupTradeResults', () => {
-  function makeItem(account: string, amount: number, currency = 'chaos') {
+  function makeItem(account: string, amount: number, currency = 'chaos'): any {
     return {
       id: Math.random().toString(36).slice(2),
       listing: { account: { name: account }, price: { amount, currency } },
@@ -58,15 +58,15 @@ describe('AdvancedTradeQueryBuilder', () => {
   });
 
   it('adds DPS pseudo stats via weaponDPS helper', () => {
-    const q = new AdvancedTradeQueryBuilder()
-      .weaponDPS(150, 200, 300)
-      .build();
+    const q = new AdvancedTradeQueryBuilder().weaponDPS(150, 200, 300).build();
     // Expect one stats group added with three entries
     expect(q.query.stats?.length).toBeGreaterThan(0);
     const group = q.query.stats![0] as any;
     expect(group.filters.length).toBe(3);
     // focus on min values rather than IDs (avoid coupling)
-    const mins = group.filters.map((f: any) => f.value?.min).sort((a: number, b: number) => a - b);
+    const mins = group.filters
+      .map((f: any) => f.value?.min)
+      .sort((a: number, b: number) => a - b);
     expect(mins).toEqual([150, 200, 300]);
   });
 });

@@ -4,7 +4,7 @@ import type { PoEApiClient } from '../client/api-client';
 describe('LadderPager', () => {
   const league = 'Affliction';
 
-  function makeEntry(rank: number) {
+  function makeEntry(rank: number): any {
     return {
       rank,
       character: { name: `c${rank}`, level: 90, class: 'Witch' },
@@ -21,7 +21,11 @@ describe('LadderPager', () => {
     });
 
     const client = { getLeagueLadder } as unknown as PoEApiClient;
-    const pager = new LadderPager(client, league, { realm: 'pc', sort: 'xp', limit: 2 });
+    const pager = new LadderPager(client, league, {
+      realm: 'pc',
+      sort: 'xp',
+      limit: 2,
+    });
 
     const first = await pager.loadFirst();
     expect(first?.total).toBe(3);
@@ -64,7 +68,7 @@ describe('LadderPager', () => {
 
     expect(chunk1?.length).toBe(2);
     expect(chunk2).toBeNull();
-    expect(pager.entries.map(e => e.rank)).toEqual([1, 2, 3, 4]);
+    expect(pager.entries.map((e) => e.rank)).toEqual([1, 2, 3, 4]);
     // Offsets used: 0 (loadFirst), 2 (next), 4 (next)
     expect(getLeagueLadder.mock.calls[0][1]).toMatchObject({ offset: 0 });
     expect(getLeagueLadder.mock.calls[1][1]).toMatchObject({ offset: 2 });
@@ -85,4 +89,3 @@ describe('LadderPager', () => {
     expect(pager.entries.length).toBe(0);
   });
 });
-

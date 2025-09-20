@@ -2,9 +2,8 @@
 
 A fully-typed TypeScript SDK for the official Path of Exile API, supporting both PoE1 and PoE2, **plus unofficial trade search functionality**.
 
-[![CI](https://github.com/your-username/poe-api-sdk/workflows/CI/badge.svg)](https://github.com/your-username/poe-api-sdk/actions)
-[![npm version](https://badge.fury.io/js/poe-api-sdk.svg)](https://badge.fury.io/js/poe-api-sdk)
-[![Coverage Status](https://coveralls.io/repos/github/your-username/poe-api-sdk/badge.svg?branch=main)](https://coveralls.io/github/your-username/poe-api-sdk?branch=main)
+[![CI](https://github.com/viligante8/poe-js-sdk/workflows/CI/badge.svg)](https://github.com/viligante8/poe-js-sdk/actions)
+[![Coverage Status](https://coveralls.io/repos/github/viligante8/poe-js-sdk/badge.svg?branch=main)](https://coveralls.io/github/viligante8/poe-js-sdk?branch=main)
 
 ## Features
 
@@ -23,7 +22,6 @@ A fully-typed TypeScript SDK for the official Path of Exile API, supporting both
 - **🎯 PoE2 Enhanced Support** - Crossbows, focus items, greater/perfect currencies  
 - **📊 Result Grouping** - Automatically group duplicate listings to reduce spam
 - **⏱️ Rate Limiting** - Built-in request throttling to prevent API abuse
-- **🎮 Inspired by the Best** - Features from Exiled-Exchange-2 and PathOfBuilding
 - **📈 Common Stat IDs** - Pre-defined constants for life, resistances, damage, etc.
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete details.
@@ -31,11 +29,11 @@ See [CHANGELOG.md](./CHANGELOG.md) for complete details.
 ## Installation
 
 ```bash
-npm install poe-api-sdk
+npm install poe-js-sdk
 # or
-yarn add poe-api-sdk
+yarn add poe-js-sdk
 # or
-pnpm add poe-api-sdk
+pnpm add poe-js-sdk
 ```
 
 ## Quick Start
@@ -43,7 +41,7 @@ pnpm add poe-api-sdk
 ### Basic Setup
 
 ```typescript
-import { PoEApiClient, OAuthHelper } from 'poe-api-sdk';
+import { PoEApiClient, OAuthHelper } from 'poe-js-sdk';
 
 // Initialize the client
 const client = new PoEApiClient({
@@ -59,7 +57,7 @@ console.log(`Hello, ${profile.name}!`);
 ### Trade Search (Unofficial API)
 
 ```typescript
-import { TradeClient, TradeQueryBuilder, ItemCategories, Currencies } from 'poe-api-sdk';
+import { TradeClient, TradeQueryBuilder, ItemCategories, Currencies } from 'poe-js-sdk';
 
 // Initialize trade client with POESESSID from browser
 const tradeClient = new TradeClient({
@@ -90,7 +88,7 @@ results.items.result.forEach(item => {
 ### OAuth Authentication Flow
 
 ```typescript
-import { OAuthHelper } from 'poe-api-sdk';
+import { OAuthHelper } from 'poe-js-sdk';
 
 const config = {
   clientId: 'your-client-id',
@@ -126,7 +124,7 @@ const client = new PoEApiClient({
 
 #### Basic Trade Search
 ```typescript
-import { TradeClient, TradeQueryBuilder, ItemCategories, Currencies } from 'poe-api-sdk';
+import { TradeClient, TradeQueryBuilder, ItemCategories, Currencies } from 'poe-js-sdk';
 
 const tradeClient = new TradeClient({
   poesessid: 'your-poesessid-from-browser-cookies'
@@ -151,7 +149,7 @@ import {
   COMMON_STAT_IDS,
   groupTradeResults,
   TradeRateLimiter
-} from 'poe-api-sdk';
+} from 'poe-js-sdk';
 
 // PoE2 weapon search with DPS filtering
 const weaponQuery = new AdvancedTradeQueryBuilder()
@@ -349,7 +347,7 @@ try {
 The SDK provides complete TypeScript definitions for all API responses:
 
 ```typescript
-import type { Character, Item, League, Profile } from 'poe-api-sdk';
+import type { Character, Item, League, Profile } from 'poe-js-sdk';
 
 const character: Character = await client.getCharacter('MyCharacter');
 const items: Item[] = character.inventory || [];

@@ -28,7 +28,7 @@ export interface TradeSearchQuery {
         };
       };
       misc_filters?: {
-        filters: Record<string, any>;
+        filters: Record<string, unknown>;
       };
     };
   };

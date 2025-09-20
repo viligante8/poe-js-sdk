@@ -1,4 +1,6 @@
-module.exports = {
+import type { Config } from 'jest';
+
+export default async (): Promise<Config> => ({
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
@@ -7,8 +9,8 @@ module.exports = {
     'src/**/*.ts',
     '!src/**/*.d.ts',
     '!src/**/*.test.ts',
-    '!src/**/__tests__/**'
+    '!src/**/__tests__/**',
   ],
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html']
-};
+  coverageReporters: ['text', 'lcov', 'html'],
+});

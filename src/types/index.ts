@@ -130,7 +130,7 @@ export interface Item {
   };
   crucible?: {
     layout?: string;
-    nodes?: Record<string, any>;
+    nodes?: Record<string, unknown>;
   };
   ruthless?: boolean;
   frameType?: number;

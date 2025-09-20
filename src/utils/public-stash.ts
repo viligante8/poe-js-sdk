@@ -23,7 +23,7 @@ export async function* publicStashStream(
   let nextId = options.startId;
   const idle = options.idleWaitMs ?? 2000;
   while (true) {
-    const params: { realm?: Realm; id?: string } = {} as any;
+    const params: { realm?: Realm; id?: string } = {};
     if (options.realm !== undefined) params.realm = options.realm as Realm;
     if (nextId !== undefined) params.id = nextId;
     const res = await client.getPublicStashes(params);

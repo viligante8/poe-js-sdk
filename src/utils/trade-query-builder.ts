@@ -1,4 +1,4 @@
-import type { TradeSearchQuery, StatGroup, StatFilter } from '../types';
+import type { TradeSearchQuery, StatGroup } from '../types';
 
 export class TradeQueryBuilder {
   private query: TradeSearchQuery = {
@@ -24,7 +24,9 @@ export class TradeQueryBuilder {
     if (!this.query.query.filters?.type_filters) {
       this.query.query.filters!.type_filters = { filters: {} };
     }
-    this.query.query.filters!.type_filters.filters.category = { option: category };
+    this.query.query.filters!.type_filters.filters.category = {
+      option: category,
+    };
     return this;
   }
 
@@ -61,7 +63,9 @@ export class TradeQueryBuilder {
     if (!this.query.query.filters?.trade_filters) {
       this.query.query.filters!.trade_filters = { filters: {} };
     }
-    this.query.query.filters!.trade_filters.filters.account = { input: accountName };
+    this.query.query.filters!.trade_filters.filters.account = {
+      input: accountName,
+    };
     return this;
   }
 
@@ -71,7 +75,7 @@ export class TradeQueryBuilder {
   andStats(filters: Array<{ id: string; min?: number; max?: number }>): this {
     const statGroup: StatGroup = {
       type: 'and',
-      filters: filters.map(f => ({
+      filters: filters.map((f) => ({
         id: f.id,
         value: {
           ...(f.min !== undefined && { min: f.min }),
@@ -90,7 +94,7 @@ export class TradeQueryBuilder {
   orStats(filters: Array<{ id: string; min?: number; max?: number }>): this {
     const statGroup: StatGroup = {
       type: 'or',
-      filters: filters.map(f => ({
+      filters: filters.map((f) => ({
         id: f.id,
         value: {
           ...(f.min !== undefined && { min: f.min }),
@@ -109,7 +113,7 @@ export class TradeQueryBuilder {
   weightedStats(filters: Array<{ id: string; weight: number }>): this {
     const statGroup: StatGroup = {
       type: 'weight2',
-      filters: filters.map(f => ({
+      filters: filters.map((f) => ({
         id: f.id,
         value: { weight: f.weight },
         disabled: false,
@@ -155,23 +159,23 @@ export const ItemCategories = {
   WEAPON_WAND: 'weapon.wand',
   WEAPON_DAGGER: 'weapon.dagger',
   WEAPON_CLAW: 'weapon.claw',
-  
+
   // Armour
   ARMOUR_HELMET: 'armour.helmet',
   ARMOUR_CHEST: 'armour.chest',
   ARMOUR_BOOTS: 'armour.boots',
   ARMOUR_GLOVES: 'armour.gloves',
   ARMOUR_SHIELD: 'armour.shield',
-  
+
   // Accessories
   ACCESSORY_RING: 'accessory.ring',
   ACCESSORY_AMULET: 'accessory.amulet',
   ACCESSORY_BELT: 'accessory.belt',
-  
+
   // Gems
   GEM_SKILL: 'gem.activegem',
   GEM_SUPPORT: 'gem.supportgem',
-  
+
   // Currency
   CURRENCY: 'currency',
 } as const;

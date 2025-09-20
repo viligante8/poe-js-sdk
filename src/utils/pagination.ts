@@ -5,7 +5,14 @@ import { PoEApiClient } from '../client/api-client';
 export interface LadderPagerOptions {
   realm?: Exclude<Realm, 'poe2'>;
   sort?: 'xp' | 'depth' | 'depthsolo' | 'ancestor' | 'time' | 'score' | 'class';
-  class?: 'scion' | 'marauder' | 'ranger' | 'witch' | 'duelist' | 'templar' | 'shadow';
+  class?:
+    | 'scion'
+    | 'marauder'
+    | 'ranger'
+    | 'witch'
+    | 'duelist'
+    | 'templar'
+    | 'shadow';
   limit?: number; // per page, max 500; defaults to 200
 }
 
@@ -27,7 +34,11 @@ export class LadderPager {
    * @param league League id/name
    * @param options Ladder parameters (realm, sort/class, limit)
    */
-  constructor(client: PoEApiClient, league: string, options: LadderPagerOptions = {}) {
+  constructor(
+    client: PoEApiClient,
+    league: string,
+    options: LadderPagerOptions = {}
+  ) {
     this.client = client;
     this.league = league;
     this.options = { limit: 200, ...options };
@@ -37,7 +48,7 @@ export class LadderPager {
   async loadFirst(): Promise<Ladder | null> {
     this.offset = 0;
     this.ended = false;
-    const params: any = { offset: this.offset };
+    const params: Record<string, string | number> = { offset: this.offset };
     if (this.options.realm !== undefined) params.realm = this.options.realm;
     if (this.options.sort !== undefined) params.sort = this.options.sort;
     if (this.options.class !== undefined) params.class = this.options.class;
@@ -53,7 +64,7 @@ export class LadderPager {
   /** Fetch the next page of ladder entries, or null when no more. */
   async next(): Promise<LadderEntry[] | null> {
     if (this.ended) return null;
-    const params: any = { offset: this.offset };
+    const params: Record<string, string | number> = { offset: this.offset };
     if (this.options.realm !== undefined) params.realm = this.options.realm;
     if (this.options.sort !== undefined) params.sort = this.options.sort;
     if (this.options.class !== undefined) params.class = this.options.class;

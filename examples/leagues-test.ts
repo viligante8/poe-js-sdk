@@ -4,7 +4,7 @@ import { PoEApiClient } from '../src';
 async function testLeagues(): Promise<void> {
   const client = new PoEApiClient({
     accessToken: process.env.POE_ACCESS_TOKEN || 'your-access-token-here',
-    userAgent: 'PoE-SDK-LeagueTest/1.0.0 (contact: test@example.com)'
+    userAgent: 'poe-js-sdk-LeagueTest/1.0.0 (contact: test@example.com)'
   });
 
   console.log('🏆 League Functionality Test');

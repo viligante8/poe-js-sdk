@@ -17,7 +17,16 @@ export class PoEApiError extends Error {
    * @param opts.details Raw error payload
    * @param opts.headers Response headers
    */
-  constructor(message: string, opts: { code?: number; status: number; url?: string; details?: unknown; headers?: Record<string, string> }) {
+  constructor(
+    message: string,
+    opts: {
+      code?: number;
+      status: number;
+      url?: string;
+      details?: unknown;
+      headers?: Record<string, string>;
+    }
+  ) {
     super(message);
     this.name = 'PoEApiError';
     this.code = opts.code ?? undefined;

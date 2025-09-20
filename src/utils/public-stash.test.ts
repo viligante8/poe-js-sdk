@@ -31,7 +31,10 @@ describe('publicStashStream', () => {
     expect(r2.done).toBe(false);
     expect((r2.value as any).next_change_id).toBe('2');
     // Second call uses previous id
-    expect(getPublicStashes).toHaveBeenNthCalledWith(2, { realm: 'pc', id: '1' });
+    expect(getPublicStashes).toHaveBeenNthCalledWith(2, {
+      realm: 'pc',
+      id: '1',
+    });
   });
 
   it('waits when chunk is empty', async () => {
@@ -56,7 +59,10 @@ describe('publicStashStream', () => {
     const r2 = await p2;
     expect(r2.done).toBe(false);
     expect((r2.value as any).next_change_id).toBe('B');
-    expect(getPublicStashes).toHaveBeenNthCalledWith(2, { realm: 'pc', id: 'A' });
+    expect(getPublicStashes).toHaveBeenNthCalledWith(2, {
+      realm: 'pc',
+      id: 'A',
+    });
   });
 
   it('waits when next_change_id does not change', async () => {
@@ -85,6 +91,9 @@ describe('publicStashStream', () => {
     const r3 = await p3;
     expect(r3.done).toBe(false);
     expect((r3.value as any).next_change_id).toBe('Y');
-    expect(getPublicStashes).toHaveBeenNthCalledWith(3, { realm: 'pc', id: 'X' });
+    expect(getPublicStashes).toHaveBeenNthCalledWith(3, {
+      realm: 'pc',
+      id: 'X',
+    });
   });
 });
