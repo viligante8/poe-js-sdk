@@ -14,6 +14,10 @@ export interface Profile {
   };
 }
 
+/**
+ * League metadata returned by league endpoints.
+ * @see https://www.pathofexile.com/developer/docs/reference#type-League
+ */
 export interface League {
   id: string;
   realm: Realm;
@@ -39,6 +43,10 @@ export interface League {
   leagueEvent?: boolean;
 }
 
+/**
+ * Account character object including equipment/inventory/passives.
+ * @see https://www.pathofexile.com/developer/docs/reference#characters-list
+ */
 export interface Character {
   id: string;
   name: string;
@@ -62,6 +70,11 @@ export interface Character {
   };
 }
 
+/**
+ * Item representation used across inventory/stash/public stashes.
+ * This is a large shape; consult the official docs for field details.
+ * @see https://www.pathofexile.com/developer/docs/reference#type-Item
+ */
 export interface Item {
   verified: boolean;
   w: number;
@@ -198,6 +211,10 @@ export interface Skill {
   socketedItems?: Item[];
 }
 
+/**
+ * Stash tab node; may contain children and items depending on context.
+ * @see https://www.pathofexile.com/developer/docs/reference#stashes-list
+ */
 export interface StashTab {
   id: string;
   parent?: string;
@@ -236,12 +253,20 @@ export interface LeagueAccount {
 }
 
 // Ladder types (PoE1 only for league ladders)
+/**
+ * League ladder summary and entries (PoE1 only).
+ * @see https://www.pathofexile.com/developer/docs/reference#leagues-ladder
+ */
 export interface Ladder {
   total: number;
   cached_since?: string; // ISO8601
   entries: LadderEntry[];
 }
 
+/**
+ * Ladder entry for league ladders (PoE1 only).
+ * @see https://www.pathofexile.com/developer/docs/reference#leagues-ladder
+ */
 export interface LadderEntry {
   rank: number;
   dead?: boolean;
@@ -263,6 +288,10 @@ export interface LadderEntry {
   depth?: { default?: number; solo?: number };
 }
 
+/**
+ * Ladder entry for event ladders (PoE1 only).
+ * @see https://www.pathofexile.com/developer/docs/reference#leagues-event-ladder
+ */
 export interface EventLadderEntry {
   rank: number;
   account: { name: string };
@@ -271,6 +300,10 @@ export interface EventLadderEntry {
   score?: number;
 }
 
+/**
+ * PvP ladder team entry (PoE1 only).
+ * @see https://www.pathofexile.com/developer/docs/reference#matches-ladder
+ */
 export interface PvPLadderTeamEntry {
   rank: number;
   rating?: number;
@@ -302,12 +335,21 @@ export interface RateLimitInfo {
 }
 
 // Item Filter
+/**
+ * Validation metadata for an item filter.
+ * @see https://www.pathofexile.com/developer/docs/reference#itemfilters-post
+ */
 export type FilterType = 'Normal' | 'Ruthless';
 export interface ItemFilterValidation {
   valid: boolean;
   version?: string; // game version
   validated?: string; // ISO8601
 }
+/**
+ * Account item filter metadata and content.
+ * Mirrors the official ItemFilter shape.
+ * @see https://www.pathofexile.com/developer/docs/reference#type-ItemFilter
+ */
 export interface ItemFilter {
   id: string;
   filter_name: string;
@@ -321,6 +363,11 @@ export interface ItemFilter {
 }
 
 // Public Stash API
+/**
+ * A public stash change entry in the PSAPI stream (PoE1).
+ * Optional fields can be null when a stash is unlisted.
+ * @see https://www.pathofexile.com/developer/docs/reference#type-PublicStashChange
+ */
 export interface PublicStashChange {
   id: string; // 64 hex
   public: boolean;
@@ -337,6 +384,10 @@ export interface PublicStashesResponse {
 }
 
 // Currency Exchange API
+/**
+ * Hourly market snapshot for a specific currency pair.
+ * @see https://www.pathofexile.com/developer/docs/reference#currencyexchange-list
+ */
 export interface CurrencyMarketSnapshot {
   league: string;
   market_id: string; // e.g. chaos|divine

@@ -1,5 +1,8 @@
 import crypto from 'crypto';
 
+/**
+ * OAuth configuration used by {@link OAuthHelper}.
+ */
 export interface OAuthConfig {
   clientId: string;
   clientSecret?: string;
@@ -20,11 +23,19 @@ export interface PKCEParams {
   codeChallenge: string;
 }
 
+/**
+ * Helpers for OAuth 2.1 flows used by the PoE API.
+ *
+ * @see https://www.pathofexile.com/developer/docs/authorization
+ */
 export class OAuthHelper {
   private static readonly AUTH_URL =
     'https://www.pathofexile.com/oauth/authorize';
   private static readonly TOKEN_URL = 'https://www.pathofexile.com/oauth/token';
 
+  /**
+   * Generate PKCE code verifier and code challenge (S256).
+   */
   static generatePKCE(): PKCEParams {
     const codeVerifier = crypto.randomBytes(32).toString('base64url');
     const codeChallenge = crypto
@@ -35,6 +46,13 @@ export class OAuthHelper {
     return { codeVerifier, codeChallenge };
   }
 
+  /**
+   * Build authorization URL for the Authorization Code flow (supports PKCE).
+   * @param config Client configuration
+   * @param state Opaque anti-CSRF token
+   * @param pkce Optional PKCE values (recommended for public clients)
+   * @see https://www.pathofexile.com/developer/docs/authorization#authorization_code
+   */
   static buildAuthUrl(
     config: OAuthConfig,
     state: string,
@@ -56,6 +74,10 @@ export class OAuthHelper {
     return `${this.AUTH_URL}?${params.toString()}`;
   }
 
+  /**
+   * Exchange authorization code for an access token.
+   * @see https://www.pathofexile.com/developer/docs/authorization#tokens
+   */
   static async exchangeCodeForToken(
     config: OAuthConfig,
     code: string,
@@ -89,6 +111,10 @@ export class OAuthHelper {
     return response.json();
   }
 
+  /**
+   * Refresh an access token using a refresh token.
+   * @see https://www.pathofexile.com/developer/docs/authorization#tokens
+   */
   static async refreshToken(
     config: OAuthConfig,
     refreshToken: string
@@ -118,7 +144,8 @@ export class OAuthHelper {
 
   /**
    * Client Credentials grant for service scopes (confidential clients only).
-   * Note: Public clients cannot request service:* scopes.
+   * Note: Public clients cannot request `service:*` scopes.
+   * @see https://www.pathofexile.com/developer/docs/authorization#client_credentials
    */
   static async getClientCredentialsToken(
     config: Pick<OAuthConfig, 'clientId' | 'clientSecret' | 'scopes'>

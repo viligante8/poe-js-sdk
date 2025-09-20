@@ -34,3 +34,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical
 - Tests significantly expanded; coverage ~78% statements. Utilities ~86–100%.
 - Full TypeScript strict mode compliance maintained.
+ - CI added for tests/lint/type-check. Release workflow creates GitHub Releases on `v*.*.*` tags and uploads `dist/` artifacts.

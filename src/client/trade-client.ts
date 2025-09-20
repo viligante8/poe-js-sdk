@@ -13,12 +13,13 @@ export interface TradeClientConfig {
 }
 
 /**
- * UNOFFICIAL Trade API Client
- * 
- * WARNING: This uses unofficial trade endpoints that are not part of the official PoE API.
- * These endpoints may change or break without notice. Use at your own risk.
- * 
- * Requires a valid POESESSID cookie from your browser session.
+ * UNOFFICIAL Trade API Client.
+ *
+ * WARNING: This uses website trade endpoints that are not part of the official PoE API.
+ * They may change or break without notice. Requires a valid `POESESSID` cookie.
+ *
+ * - Set a compliant `User-Agent` (same format as official API)
+ * - Respect rate limits and be considerate with usage
  */
 export class TradeClient {
   private client: AxiosInstance;
@@ -46,6 +47,7 @@ export class TradeClient {
    * @param league League name (e.g., 'Standard', 'Hardcore')
    * @param query Trade search query
    * @param realm Realm ('pc', 'xbox', 'sony', 'poe2')
+   * @see https://www.pathofexile.com/trade/search
    */
   async search(
     league: string,
@@ -62,6 +64,7 @@ export class TradeClient {
    * @param resultIds Array of result IDs from search response
    * @param queryId Query ID from search response
    * @param realm Realm ('pc', 'xbox', 'sony', 'poe2')
+    * @see https://www.pathofexile.com/trade/fetch
    */
   async fetch(
     resultIds: string[],
@@ -113,6 +116,7 @@ export class TradeClient {
    * @param itemId Item ID
    * @param queryId Query ID
    * @param realm Realm ('pc', 'xbox', 'sony', 'poe2')
+   * @see https://www.pathofexile.com/trade/whisper
    */
   async getWhisper(
     itemId: string,

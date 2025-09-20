@@ -1,6 +1,7 @@
 import type { Ladder, LadderEntry, Realm } from '../types';
 import { PoEApiClient } from '../client/api-client';
 
+/** Options for {@link LadderPager}. */
 export interface LadderPagerOptions {
   realm?: Exclude<Realm, 'poe2'>;
   sort?: 'xp' | 'depth' | 'depthsolo' | 'ancestor' | 'time' | 'score' | 'class';
@@ -8,6 +9,10 @@ export interface LadderPagerOptions {
   limit?: number; // per page, max 500; defaults to 200
 }
 
+/**
+ * Helper to paginate league ladders (PoE1) with simple `loadFirst()` and `next()` calls.
+ * @see https://www.pathofexile.com/developer/docs/reference#leagues-ladder
+ */
 export class LadderPager {
   private client: PoEApiClient;
   private league: string;
@@ -17,12 +22,18 @@ export class LadderPager {
   public entries: LadderEntry[] = [];
   public total = 0;
 
+  /**
+   * @param client PoE API client
+   * @param league League id/name
+   * @param options Ladder parameters (realm, sort/class, limit)
+   */
   constructor(client: PoEApiClient, league: string, options: LadderPagerOptions = {}) {
     this.client = client;
     this.league = league;
     this.options = { limit: 200, ...options };
   }
 
+  /** Load the first ladder page, resetting state. */
   async loadFirst(): Promise<Ladder | null> {
     this.offset = 0;
     this.ended = false;
@@ -39,6 +50,7 @@ export class LadderPager {
     return res.ladder;
   }
 
+  /** Fetch the next page of ladder entries, or null when no more. */
   async next(): Promise<LadderEntry[] | null> {
     if (this.ended) return null;
     const params: any = { offset: this.offset };
