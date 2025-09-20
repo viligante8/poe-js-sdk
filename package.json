@@ -1,6 +1,6 @@
 {
   "name": "poe-js-sdk",
-  "version": "1.2.0",
+  "version": "1.5.2",
   "type": "module",
   "description": "TypeScript SDK for the Path of Exile API",
   "main": "./dist/index.js",
@@ -41,6 +41,14 @@
   "engines": {
     "node": ">=20.19.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viligante8/poe-js-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/viligante8/poe-js-sdk/issues"
+  },
+  "homepage": "https://github.com/viligante8/poe-js-sdk#readme",
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^24.5.2",
