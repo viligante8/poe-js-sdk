@@ -7,16 +7,28 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       name: 'PoeApiSdk',
-      formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`
+      // Filename is controlled by rollupOptions.output entries below
+      fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`,
     },
     rollupOptions: {
+      // Add a second entry for browser-only helpers
+      input: {
+        index: 'src/index.ts',
+        'browser-auth': 'src/browser-auth.ts',
+      },
       external: ['axios'],
-      output: {
-        globals: {
-          axios: 'axios'
-        }
-      }
-    }
-  }
+      output: [
+        {
+          format: 'es',
+          entryFileNames: `[name].mjs`,
+          globals: { axios: 'axios' },
+        },
+        {
+          format: 'cjs',
+          entryFileNames: `[name].js`,
+          globals: { axios: 'axios' },
+        },
+      ],
+    },
+  },
 });

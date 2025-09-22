@@ -1,6 +1,6 @@
 {
   "name": "poe-js-sdk",
-  "version": "1.6.1",
+  "version": "1.7.1",
   "type": "module",
   "description": "TypeScript SDK for the Path of Exile API",
   "main": "./dist/index.js",
@@ -10,6 +10,11 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./browser-auth": {
+      "types": "./dist/browser-auth.d.ts",
+      "import": "./dist/browser-auth.mjs",
+      "require": "./dist/browser-auth.js"
     }
   },
   "files": [

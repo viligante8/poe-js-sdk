@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2025-09-19
 
+## [1.7.0] - 2025-09-20
+
+### Added
+- Browser auth helper for SPAs: `createBrowserAuth` with PKCE + state, sessionStorage token persistence, and auto refresh via `refresh_token`.
+- Types and utilities: `TokenSet`, `TokenStorage`, `Storages`.
+- Documentation and examples for SPA auth usage.
+- Dedicated browser subpath export: `poe-js-sdk/browser-auth` now points to a browser-safe build to avoid Node polyfills in SPAs. Prefer this import path in client apps.
+- Next.js (App Router) example demonstrating secure server-side OAuth with httpOnly cookies, including login, callback, refresh, and a profile route.
+
 ### Fixed
 - Align league ladder parameters with docs (`sort`, optional `class`) and PoE1 realms only.
 - Parse and expose rate limit state headers: `X-Rate-Limit-Account-State`, `X-Rate-Limit-IP-State`, `X-Rate-Limit-Client-State`.
@@ -36,3 +45,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tests significantly expanded; coverage ~78% statements. Utilities ~86–100%.
 - Full TypeScript strict mode compliance maintained.
 - CI added for tests/lint/type-check. Release workflow creates GitHub Releases on `v*.*.*` tags and uploads `dist/` artifacts.
+
+## [1.7.1] - 2025-09-22
+
+### Fixed
+- SPA PKCE generation now prefers Web Crypto + `btoa` for base64url and only falls back to Node `Buffer` when needed. Removes accidental hard dependency on `Buffer` in browsers.
+- Minor type and lint fixes in `browser-auth` implementation and tests.
+
+### Docs
+- Clarify usage of the browser-only subpath export: import from `poe-js-sdk/browser-auth` in SPAs.

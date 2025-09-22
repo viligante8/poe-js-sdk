@@ -29,6 +29,7 @@ Note: when installing from a Git repo, npm runs the `prepare` script to build `d
 
 - Runtime: `PoEApiClient`, `TradeClient`, helpers (`LadderPager`, `publicStashStream`)
 - OAuth: `OAuthHelper`
+- Browser (subpath): `createBrowserAuth` (import from `poe-js-sdk/browser-auth`)
 - Types: `Profile`, `League`, `Character`, `Item`, `StashTab`, `PvpMatch`, `LeagueAccount`, `Ladder`, `LadderEntry`, `EventLadderEntry`, `PvPLadderTeamEntry`, `ItemFilter`, `PublicStashesResponse`, `CurrencyExchangeResponse`, `RateLimitInfo`, `Realm`, trade types
 
 Type definitions are included in `dist/index.d.ts` and re-exported from the entry. You can `import type { ... } from 'poe-js-sdk'` directly.
@@ -48,6 +49,42 @@ console.log(profile.name);
 ```
 
 ## Authorization (OAuth 2.1)
+
+### Browser Auth Helper (SPA)
+
+For SPAs, you can use a thin helper that wires PKCE + state + redirects for you.
+
+```ts
+// Import the browser-safe build to avoid Node polyfills
+import { createBrowserAuth } from 'poe-js-sdk/browser-auth';
+import { PoEApiClient } from 'poe-js-sdk';
+
+const auth = createBrowserAuth({
+  clientId: '<public-client-id>',
+  redirectUri: 'http://127.0.0.1:8080/callback',
+  scopes: ['account:profile']
+});
+
+// Start login
+document.getElementById('login')!.onclick = () => auth.login();
+
+// On your redirectUri page
+if (location.search.includes('code=')) {
+  await auth.handleRedirectCallback();
+}
+
+// Use the access token
+const client = new PoEApiClient({
+  userAgent: 'OAuth myapp/1.0.0 (contact: dev@example.com)',
+  accessToken: await auth.getAccessToken(),
+});
+```
+
+Notes:
+- Uses PKCE and `state` automatically; no secrets in the browser.
+- Stores tokens in `sessionStorage` by default; you can inject a custom storage.
+- Will refresh the access token automatically when it’s near expiry.
+ - Import from `poe-js-sdk/browser-auth` (browser-only build) to avoid bundling Node deps.
 
 ### Grants
 - Authorization Code + PKCE (user consent)
@@ -189,6 +226,9 @@ for await (const chunk of publicStashStream(client, { realm: 'pc', idleWaitMs: 2
   break; // stop when you want
 }
 ```
+
+### Framework Example
+- Next.js (App Router) auth flow with httpOnly cookies: `examples/nextjs/`
 
 ## Security
 - Never embed credentials/secrets in distributed binaries or client code

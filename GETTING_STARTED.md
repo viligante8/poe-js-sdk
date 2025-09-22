@@ -43,6 +43,30 @@ const profile = await client.getProfile();
 console.log(`Hello, ${profile.name}!`);
 ```
 
+### 1b. SPA Auth Helper (PKCE)
+
+```typescript
+import { createBrowserAuth } from 'poe-js-sdk/browser-auth';
+import { PoEApiClient } from 'poe-js-sdk';
+
+const auth = createBrowserAuth({
+  clientId: 'your-client-id',
+  redirectUri: 'http://localhost:8080/callback',
+  scopes: ['account:profile']
+});
+
+// Start login
+auth.login();
+
+// In your callback route/page
+await auth.handleRedirectCallback();
+
+const client = new PoEApiClient({
+  userAgent: 'MyApp/1.0.0 (contact: you@example.com)',
+  accessToken: await auth.getAccessToken(),
+});
+```
+
 ### 2. Trade Search - Find Items
 
 ```typescript

@@ -1,6 +1,13 @@
 export { PoEApiClient } from './client/api-client';
 export { TradeClient } from './client/trade-client';
 export { OAuthHelper } from './auth/oauth';
+export { createBrowserAuth, Storages } from './auth/browser-auth';
+export type {
+  BrowserAuth,
+  BrowserAuthConfig,
+  TokenSet,
+  TokenStorage,
+} from './auth/browser-auth';
 export {
   TradeQueryBuilder,
   ItemCategories,

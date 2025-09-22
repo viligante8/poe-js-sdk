@@ -116,6 +116,40 @@ const client = new PoEApiClient({
 });
 ```
 
+### Browser Auth (SPA)
+
+```typescript
+import { createBrowserAuth } from 'poe-js-sdk/browser-auth';
+import { PoEApiClient } from 'poe-js-sdk';
+
+const auth = createBrowserAuth({
+  clientId: 'your-client-id',
+  redirectUri: 'http://localhost:8080/callback',
+  scopes: ['account:profile']
+});
+
+// Trigger login
+auth.login();
+
+// On callback page
+await auth.handleRedirectCallback();
+
+// Use API with auto-refreshing access token
+const client = new PoEApiClient({
+  userAgent: 'YourApp/1.0.0 (contact: your-email@example.com)',
+  accessToken: await auth.getAccessToken(),
+});
+```
+
+Notes:
+- Uses PKCE and state under the hood; no secrets in browser.
+- Stores tokens in sessionStorage by default; can inject custom storage.
+- Automatically refreshes access token when near expiry.
+- Import from `poe-js-sdk/browser-auth` to avoid Node polyfills in SPA bundles.
+
+### Framework Example
+- Next.js (App Router) server-side OAuth with httpOnly cookies: `examples/nextjs/`
+
 ## API Reference
 
 ### Trade Search API (Unofficial)
