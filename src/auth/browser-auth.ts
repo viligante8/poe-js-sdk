@@ -102,7 +102,8 @@ export function createBrowserAuth(
       ? new WebStorage(g.window.sessionStorage)
       : new InMemoryStorage());
 
-  let onTokenChange: ((t: TokenSet | undefined) => void) | undefined;
+  // Accept an optional parameter internally so calling without args is valid in all environments
+  let onTokenChange: ((t?: TokenSet) => void) | undefined;
 
   function saveTokensFromResponse(token: TokenResponse): TokenSet {
     const now = Math.floor(Date.now() / 1000);
