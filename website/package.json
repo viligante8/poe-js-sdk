@@ -1,0 +1,21 @@
+{
+  "name": "poe-js-sdk-website",
+  "private": true,
+  "scripts": {
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "serve": "docusaurus serve",
+    "deploy": "docusaurus deploy"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.8.1",
+    "@docusaurus/preset-classic": "^3.8.1",
+    "docusaurus-plugin-typedoc": "^1.4.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typedoc": "^0.28.13",
+    "typedoc-plugin-markdown": "^4.9.0",
+    "typescript": "^5.9.2"
+  }
+}
+

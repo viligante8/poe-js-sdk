@@ -9,6 +9,15 @@ dist/
 build/
 *.tsbuildinfo
 
+# Docs website (Docusaurus)
+website/.docusaurus/
+website/.cache/
+website/docs/api/
+website/api/
+
+# Next.js (examples)
+.next/
+
 # Coverage
 coverage/
 *.lcov
