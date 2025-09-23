@@ -82,6 +82,6 @@ console.log(`Found ${results.search.total} rings`);
 ## Next Steps
 
 - Read the detailed guides (OAuth, Trade, Rate Limiting)
+- Learn more about SPA auth: [Browser Auth (SPA)](./browser-auth.md)
 - Explore the API Reference
 - Try the `examples/` directory in the repository
-

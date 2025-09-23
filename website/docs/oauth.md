@@ -7,6 +7,8 @@ The SDK supports Authorization Code + PKCE, Refresh Token, and Client Credential
 
 ## Browser Auth Helper (SPA)
 
+See also: [Browser Auth (SPA)](./browser-auth.md) for storage, lifecycle, and error handling details.
+
 ```ts
 import { createBrowserAuth } from 'poe-js-sdk/browser-auth';
 import { PoEApiClient } from 'poe-js-sdk';
@@ -74,4 +76,3 @@ User-Agent: OAuth {clientId}/{version} (contact: {email}) OptionalInfo
 ## Third‑Party Notice
 
 This product isn't affiliated with or endorsed by Grinding Gear Games in any way.
-

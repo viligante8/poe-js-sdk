@@ -16,6 +16,7 @@ const sidebars: SidebarsConfig = {
       label: 'Core',
       items: [
         'oauth',
+        'browser-auth',
         'oauth-scopes',
         'rate-limiting',
         'realms',
@@ -51,4 +52,3 @@ const sidebars: SidebarsConfig = {
 };
 
 export default sidebars;
-

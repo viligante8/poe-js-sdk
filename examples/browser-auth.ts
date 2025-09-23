@@ -1,14 +1,19 @@
 // Browser-only example demonstrating SPA auth helper usage.
 // This file is for reference and should be bundled in a web app.
 
-import { createBrowserAuth } from 'poe-js-sdk/browser-auth';
+import { createBrowserAuth, Storages } from 'poe-js-sdk/browser-auth';
 import { PoEApiClient } from 'poe-js-sdk';
+
+// Choose storage (default is sessionStorage). Here we persist across sessions.
+const storage = typeof localStorage !== 'undefined'
+  ? new Storages.Web(localStorage, 'poe_auth_tokens')
+  : undefined;
 
 const auth = createBrowserAuth({
   clientId: 'your-client-id',
   redirectUri: 'http://localhost:5173/callback',
   scopes: ['account:profile']
-});
+}, storage);
 
 // Wire up a login button
 export function wireLoginButton(button: HTMLElement) {
@@ -28,3 +33,9 @@ export async function getProfile() {
   });
   return client.getProfile();
 }
+
+// Optional: react to token changes (update UI)
+auth.setOnTokenChange((t) => {
+  // eslint-disable-next-line no-console
+  console.log('token changed', !!t);
+});
