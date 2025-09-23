@@ -9,7 +9,7 @@ const config: Config = {
   favicon: 'img/logo.svg',
   organizationName: 'viligante8',
   projectName: 'poe-js-sdk',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   trailingSlash: false,
   i18n: {
@@ -65,7 +65,7 @@ const config: Config = {
       },
       items: [
         { type: 'docSidebar', sidebarId: 'tutorialSidebar', position: 'left', label: 'Docs' },
-        { to: '/api', label: 'API', position: 'left' },
+        { to: '/api/index', label: 'API', position: 'left' },
         {
           href: 'https://github.com/viligante8/poe-js-sdk',
           label: 'GitHub',
