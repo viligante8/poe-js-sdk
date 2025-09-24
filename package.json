@@ -3,19 +3,19 @@
   "version": "1.8.0",
   "type": "module",
   "description": "TypeScript SDK for the Path of Exile API",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "require": "./dist/index.cjs"
     },
     "./browser-auth": {
       "types": "./dist/browser-auth.d.ts",
       "import": "./dist/browser-auth.mjs",
-      "require": "./dist/browser-auth.js"
+      "require": "./dist/browser-auth.cjs"
     }
   },
   "files": [
