@@ -84,6 +84,7 @@ export async function GET(req: Request) {
       clientSecret: process.env.OAUTH_CLIENT_SECRET, // confidential only; token endpoint uses client_secret_post
       redirectUri: process.env.OAUTH_REDIRECT_URI!,
       scopes: ['account:profile'], // do not request service:* here
+      userAgent: process.env.USER_AGENT!, // set UA on token requests (server only)
     },
     code,
     verifier,
@@ -114,6 +115,7 @@ export async function POST() {
   const tokens = await OAuthHelper.refreshToken({
     clientId: process.env.OAUTH_CLIENT_ID!,
     clientSecret: process.env.OAUTH_CLIENT_SECRET,
+    userAgent: process.env.USER_AGENT!,
   }, refreshToken);
 
   const res = NextResponse.json({ ok: true });

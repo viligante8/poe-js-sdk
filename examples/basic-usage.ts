@@ -25,7 +25,7 @@ async function basicExample(): Promise<void> {
   // Initialize client with access token
   const client = new PoEApiClient({
     accessToken: 'your-access-token-here',
-    userAgent: 'MyPoEApp/1.0.0 (contact: developer@example.com)'
+    userAgent: 'OAuth myapp/1.0.0 (contact: developer@example.com)'
   });
 
   try {
@@ -73,7 +73,7 @@ async function basicExample(): Promise<void> {
 async function realmExample(): Promise<void> {
   const client = new PoEApiClient({
     accessToken: 'your-access-token',
-    userAgent: 'MyPoEApp/1.0.0 (contact: developer@example.com)'
+    userAgent: 'OAuth myapp/1.0.0 (contact: developer@example.com)'
   });
 
   // Get PoE2 leagues
@@ -93,7 +93,7 @@ async function realmExample(): Promise<void> {
 async function itemExample(): Promise<void> {
   const client = new PoEApiClient({
     accessToken: 'your-access-token',
-    userAgent: 'MyPoEApp/1.0.0 (contact: developer@example.com)'
+    userAgent: 'OAuth myapp/1.0.0 (contact: developer@example.com)'
   });
 
   const characters = await client.getCharacters();

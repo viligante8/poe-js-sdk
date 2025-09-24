@@ -84,6 +84,33 @@ const svcToken = await OAuthHelper.getClientCredentialsToken({
 User-Agent: OAuth {clientId}/{version} (contact: {email}) OptionalInfo
 ```
 
+- You can (and should) include this in OAuth token requests. Pass `userAgent` in the `OAuthHelper` config when calling `exchangeCodeForToken`, `refreshToken`, or `getClientCredentialsToken` from a server runtime (Node/Next.js API route). Browsers forbid setting this header and it will be ignored there.
+
+Example (Node/Next.js route):
+
+```ts
+const tokens = await OAuthHelper.exchangeCodeForToken({
+  clientId: process.env.OAUTH_CLIENT_ID!,
+  clientSecret: process.env.OAUTH_CLIENT_SECRET,
+  redirectUri: process.env.OAUTH_REDIRECT_URI!,
+  scopes: ['account:profile'],
+  userAgent: process.env.USER_AGENT!,
+}, code, pkce.codeVerifier);
+
+const refreshed = await OAuthHelper.refreshToken({
+  clientId: process.env.OAUTH_CLIENT_ID!,
+  clientSecret: process.env.OAUTH_CLIENT_SECRET,
+  userAgent: process.env.USER_AGENT!,
+}, refreshToken);
+
+const svcToken = await OAuthHelper.getClientCredentialsToken({
+  clientId: process.env.OAUTH_CLIENT_ID!,
+  clientSecret: process.env.OAUTH_CLIENT_SECRET!,
+  scopes: ['service:leagues'],
+  userAgent: process.env.USER_AGENT!,
+});
+```
+
 ## Third‑Party Notice
 
 This product isn't affiliated with or endorsed by Grinding Gear Games in any way.

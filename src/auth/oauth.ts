@@ -8,6 +8,8 @@ export interface OAuthConfig {
   clientSecret?: string;
   redirectUri: string;
   scopes: string[];
+  /** Optional user agent to send on token requests (server runtimes only). */
+  userAgent?: string;
 }
 
 export interface TokenResponse {
@@ -32,6 +34,21 @@ export class OAuthHelper {
   private static readonly AUTH_URL =
     'https://www.pathofexile.com/oauth/authorize';
   private static readonly TOKEN_URL = 'https://www.pathofexile.com/oauth/token';
+
+  /**
+   * Detect if we are in a non-browser runtime where setting `User-Agent` is allowed.
+   * Browsers forbid setting this header; undici/Node allows it.
+   */
+  private static canSendUserAgent(): boolean {
+    // Only allow in Node.js (undici). Avoid browsers and Edge/Workers.
+    const g = globalThis as unknown as {
+      process?: { versions?: { node?: string }; release?: { name?: string } };
+      window?: unknown;
+    };
+    const isNode = typeof g.process?.versions?.node === 'string';
+    const hasWindow = g.window !== undefined;
+    return isNode && !hasWindow;
+  }
 
   /**
    * Generate PKCE code verifier and code challenge (S256).
@@ -152,9 +169,16 @@ export class OAuthHelper {
       body.append('code_verifier', codeVerifier);
     }
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    if (config.userAgent && OAuthHelper.canSendUserAgent()) {
+      headers['User-Agent'] = config.userAgent;
+    }
+
     const response = await fetch(this.TOKEN_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers,
       body,
     });
 
@@ -183,9 +207,16 @@ export class OAuthHelper {
       body.append('client_secret', config.clientSecret);
     }
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    if (config.userAgent && OAuthHelper.canSendUserAgent()) {
+      headers['User-Agent'] = config.userAgent;
+    }
+
     const response = await fetch(this.TOKEN_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers,
       body,
     });
 
@@ -202,7 +233,10 @@ export class OAuthHelper {
    * @see https://www.pathofexile.com/developer/docs/authorization#client_credentials
    */
   static async getClientCredentialsToken(
-    config: Pick<OAuthConfig, 'clientId' | 'clientSecret' | 'scopes'>
+    config: Pick<
+      OAuthConfig,
+      'clientId' | 'clientSecret' | 'scopes' | 'userAgent'
+    >
   ): Promise<TokenResponse> {
     if (!config.clientSecret) {
       throw new Error('Client secret is required for client_credentials grant');
@@ -215,9 +249,16 @@ export class OAuthHelper {
       scope: config.scopes.join(' '),
     });
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    if (config.userAgent && OAuthHelper.canSendUserAgent()) {
+      headers['User-Agent'] = config.userAgent;
+    }
+
     const response = await fetch(this.TOKEN_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers,
       body,
     });
 

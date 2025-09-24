@@ -73,3 +73,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarify that Authorization Code “with PKCE” is required for both public and confidential clients.
 - Document that the token endpoint uses `client_secret_post` for confidential clients.
 - Add scope guidance: request `account:*` scopes during user login; request `service:*` scopes separately via the Client Credentials grant for confidential clients.
+
+## [2.0.2] - 2025-09-24
+
+### Added
+- Optional `userAgent` on `OAuthHelper` config. When provided from a server runtime, token requests (`exchangeCodeForToken`, `refreshToken`, `getClientCredentialsToken`) include a `User-Agent` header to avoid WAF blocks.
+
+### Docs
+- Next.js and OAuth docs updated to show passing `userAgent` during token requests.
+- Getting Started examples now use a compliant `User-Agent` string (must start with `OAuth ` and include contact info).

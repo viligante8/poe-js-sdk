@@ -27,11 +27,15 @@ const authUrl = OAuthHelper.buildAuthUrl(oauthConfig, 'random-state', pkce);
 console.log('Visit:', authUrl);
 
 // After callback
-const tokens = await OAuthHelper.exchangeCodeForToken(oauthConfig, 'code', pkce.codeVerifier);
+const tokens = await OAuthHelper.exchangeCodeForToken(
+  { ...oauthConfig, userAgent: 'OAuth myapp/1.0.0 (contact: you@example.com)' },
+  'code',
+  pkce.codeVerifier
+);
 
 const client = new PoEApiClient({
   accessToken: tokens.access_token,
-  userAgent: 'MyApp/1.0.0 (contact: you@example.com)',
+  userAgent: 'OAuth myapp/1.0.0 (contact: you@example.com)',
 });
 
 const profile = await client.getProfile();
@@ -54,7 +58,7 @@ auth.login();
 await auth.handleRedirectCallback();
 
 const client = new PoEApiClient({
-  userAgent: 'MyApp/1.0.0 (contact: you@example.com)',
+  userAgent: 'OAuth myapp/1.0.0 (contact: you@example.com)',
   accessToken: await auth.getAccessToken(),
 });
 
