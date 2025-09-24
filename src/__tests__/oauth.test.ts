@@ -102,14 +102,16 @@ describe('OAuthHelper', () => {
           }),
       });
 
-      try {
-        await OAuthHelper.exchangeCodeForToken(mockConfig, 'invalid-code');
-        fail('Expected token exchange to throw');
-      } catch (e: any) {
-        expect(String(e.message)).toContain('400');
-        expect(String(e.message)).toContain('invalid_grant');
-        expect(e.status).toBe(400);
-      }
+      await expect(
+        OAuthHelper.exchangeCodeForToken(mockConfig, 'invalid-code')
+      ).rejects.toEqual(
+        expect.objectContaining({
+          status: 400,
+          message: expect.stringMatching(
+            /(400).*invalid_grant|invalid_grant.*(400)/
+          ),
+        })
+      );
     });
   });
 });

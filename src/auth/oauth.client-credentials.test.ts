@@ -48,14 +48,15 @@ describe('OAuthHelper.getClientCredentialsToken', () => {
           error_description: 'Service scopes not allowed for public client',
         }),
     });
-    try {
-      await OAuthHelper.getClientCredentialsToken(base);
-      fail('Expected client credentials request to throw');
-    } catch (e: any) {
-      expect(String(e.message)).toContain('403');
-      expect(String(e.message)).toContain('access_denied');
-      expect(e.status).toBe(403);
-    }
+
+    await expect(OAuthHelper.getClientCredentialsToken(base)).rejects.toEqual(
+      expect.objectContaining({
+        status: 403,
+        message: expect.stringMatching(
+          /(403).*access_denied|access_denied.*(403)/
+        ),
+      })
+    );
   });
 
   it('requires clientSecret', async () => {

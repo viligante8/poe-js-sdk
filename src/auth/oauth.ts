@@ -234,35 +234,79 @@ export class OAuthHelper {
   private static async buildTokenError(
     prefix: string,
     response: Response
-  ): Promise<Error> {
-    const res: any = response as unknown as any;
-    const status: number | undefined = res.status;
-    const statusText: string | undefined = res.statusText;
+  ): Promise<{
+    message: string;
+    status?: number;
+    statusText?: string;
+    body?: string;
+  }> {
+    const status: number | undefined = response.status;
+    const statusText: string | undefined = response.statusText;
 
-    let bodyStr: string | undefined;
+    let bodyString: string | undefined;
     try {
-      const hasJson = typeof res.json === 'function';
-      const hasText = typeof res.text === 'function';
-      if (hasJson) {
-        const json = await res.json();
-        bodyStr = JSON.stringify(json);
-      } else if (hasText) {
-        bodyStr = await res.text();
+      type ResponseLike = {
+        clone?: () => ResponseLike;
+        json?: () => Promise<unknown>;
+        text?: () => Promise<string>;
+      };
+      const resp = response as unknown as ResponseLike;
+      const hasClone = typeof resp?.clone === 'function';
+      if (hasClone) {
+        try {
+          const cloned = resp.clone!();
+          if (typeof cloned.json !== 'function') throw new Error('no json');
+          const json = await cloned.json();
+          bodyString = JSON.stringify(json);
+        } catch {
+          try {
+            const cloned = resp.clone!();
+            if (typeof cloned.text !== 'function') throw new Error('no text');
+            bodyString = await cloned.text();
+          } catch {
+            // ignore
+          }
+        }
+      } else {
+        // Handle jest mocks that don't implement clone()
+        if (typeof resp?.json === 'function') {
+          try {
+            const json = await resp.json();
+            bodyString = JSON.stringify(json);
+          } catch {
+            // ignore
+          }
+        }
+        if (!bodyString && typeof resp?.text === 'function') {
+          try {
+            bodyString = await resp.text();
+          } catch {
+            // ignore
+          }
+        }
       }
     } catch {
-      // ignore parsing errors; bodyStr remains undefined
+      // ignore parsing errors; bodyString remains undefined
     }
 
-    const statusParts = [] as string[];
+    const statusParts: string[] = [];
     if (typeof status === 'number') statusParts.push(String(status));
     if (statusText) statusParts.push(statusText);
-    const statusSegment = statusParts.length ? ` (${statusParts.join(' ')})` : '';
-    const bodySegment = bodyStr ? ` - ${bodyStr}` : '';
+    const statusSegment =
+      statusParts.length > 0 ? ` (${statusParts.join(' ')})` : '';
+    const bodySegment = bodyString ? ` - ${bodyString}` : '';
 
-    const error = new Error(`${prefix}${statusSegment}${bodySegment}`);
-    (error as any).status = status;
-    (error as any).statusText = statusText;
-    if (bodyStr !== undefined) (error as any).body = bodyStr;
-    return error;
+    const errorObject: {
+      message: string;
+      status?: number;
+      statusText?: string;
+      body?: string;
+    } = {
+      message: `${prefix}${statusSegment}${bodySegment}`,
+      status,
+      statusText,
+    };
+    if (bodyString !== undefined) errorObject.body = bodyString;
+    return errorObject;
   }
 }
