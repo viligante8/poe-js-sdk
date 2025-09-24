@@ -159,7 +159,7 @@ export class OAuthHelper {
     });
 
     if (!response.ok) {
-      throw new Error(`Token exchange failed: ${response.statusText}`);
+      throw await this.buildTokenError('Token exchange failed', response);
     }
 
     return response.json();
@@ -190,7 +190,7 @@ export class OAuthHelper {
     });
 
     if (!response.ok) {
-      throw new Error(`Token refresh failed: ${response.statusText}`);
+      throw await this.buildTokenError('Token refresh failed', response);
     }
 
     return response.json();
@@ -222,9 +222,47 @@ export class OAuthHelper {
     });
 
     if (!response.ok) {
-      throw new Error(`Client credentials failed: ${response.statusText}`);
+      throw await this.buildTokenError('Client credentials failed', response);
     }
 
     return response.json();
+  }
+
+  /**
+   * Construct an error that includes HTTP status and any JSON/text body returned by the token endpoint.
+   */
+  private static async buildTokenError(
+    prefix: string,
+    response: Response
+  ): Promise<Error> {
+    const res: any = response as unknown as any;
+    const status: number | undefined = res.status;
+    const statusText: string | undefined = res.statusText;
+
+    let bodyStr: string | undefined;
+    try {
+      const hasJson = typeof res.json === 'function';
+      const hasText = typeof res.text === 'function';
+      if (hasJson) {
+        const json = await res.json();
+        bodyStr = JSON.stringify(json);
+      } else if (hasText) {
+        bodyStr = await res.text();
+      }
+    } catch {
+      // ignore parsing errors; bodyStr remains undefined
+    }
+
+    const statusParts = [] as string[];
+    if (typeof status === 'number') statusParts.push(String(status));
+    if (statusText) statusParts.push(statusText);
+    const statusSegment = statusParts.length ? ` (${statusParts.join(' ')})` : '';
+    const bodySegment = bodyStr ? ` - ${bodyStr}` : '';
+
+    const error = new Error(`${prefix}${statusSegment}${bodySegment}`);
+    (error as any).status = status;
+    (error as any).statusText = statusText;
+    if (bodyStr !== undefined) (error as any).body = bodyStr;
+    return error;
   }
 }

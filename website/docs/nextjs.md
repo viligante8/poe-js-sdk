@@ -47,7 +47,7 @@ export async function GET() {
     {
       clientId: process.env.OAUTH_CLIENT_ID!,
       redirectUri: process.env.OAUTH_REDIRECT_URI!,
-      scopes: ['account:profile'],
+      scopes: ['account:profile'], // recommend account:* only in user login
     },
     state,
     pkce,
@@ -81,9 +81,9 @@ export async function GET(req: Request) {
   const tokens = await OAuthHelper.exchangeCodeForToken(
     {
       clientId: process.env.OAUTH_CLIENT_ID!,
-      clientSecret: process.env.OAUTH_CLIENT_SECRET, // confidential only
+      clientSecret: process.env.OAUTH_CLIENT_SECRET, // confidential only; token endpoint uses client_secret_post
       redirectUri: process.env.OAUTH_REDIRECT_URI!,
-      scopes: ['account:profile'],
+      scopes: ['account:profile'], // do not request service:* here
     },
     code,
     verifier,

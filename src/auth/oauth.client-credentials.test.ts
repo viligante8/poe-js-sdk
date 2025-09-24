@@ -37,14 +37,25 @@ describe('OAuthHelper.getClientCredentialsToken', () => {
     );
   });
 
-  it('throws on non-ok response', async () => {
+  it('throws on non-ok response with details', async () => {
     (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
+      status: 403,
       statusText: 'Forbidden',
+      json: () =>
+        Promise.resolve({
+          error: 'access_denied',
+          error_description: 'Service scopes not allowed for public client',
+        }),
     });
-    await expect(OAuthHelper.getClientCredentialsToken(base)).rejects.toThrow(
-      'Client credentials failed: Forbidden'
-    );
+    try {
+      await OAuthHelper.getClientCredentialsToken(base);
+      fail('Expected client credentials request to throw');
+    } catch (e: any) {
+      expect(String(e.message)).toContain('403');
+      expect(String(e.message)).toContain('access_denied');
+      expect(e.status).toBe(403);
+    }
   });
 
   it('requires clientSecret', async () => {

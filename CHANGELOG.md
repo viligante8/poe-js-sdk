@@ -63,3 +63,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Docs
 - Updated README and website docs to reflect the async PKCE API and Edge compatibility notes.
+
+## [2.0.1] - 2025-09-24
+
+### Changed
+- OAuth token errors from `exchangeCodeForToken`, `refreshToken`, and `getClientCredentialsToken` now include HTTP status and the token endpoint response body (JSON or text) to ease debugging. Error objects also expose `status`, `statusText`, and `body` fields when available.
+
+### Docs
+- Clarify that Authorization Code “with PKCE” is required for both public and confidential clients.
+- Document that the token endpoint uses `client_secret_post` for confidential clients.
+- Add scope guidance: request `account:*` scopes during user login; request `service:*` scopes separately via the Client Credentials grant for confidential clients.

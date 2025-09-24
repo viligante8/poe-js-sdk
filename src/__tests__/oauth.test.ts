@@ -90,15 +90,26 @@ describe('OAuthHelper', () => {
       );
     });
 
-    it('should handle token exchange errors', async () => {
+    it('should handle token exchange errors with details', async () => {
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
+        status: 400,
         statusText: 'Bad Request',
+        json: () =>
+          Promise.resolve({
+            error: 'invalid_grant',
+            error_description: 'Authorization code expired',
+          }),
       });
 
-      await expect(
-        OAuthHelper.exchangeCodeForToken(mockConfig, 'invalid-code')
-      ).rejects.toThrow('Token exchange failed: Bad Request');
+      try {
+        await OAuthHelper.exchangeCodeForToken(mockConfig, 'invalid-code');
+        fail('Expected token exchange to throw');
+      } catch (e: any) {
+        expect(String(e.message)).toContain('400');
+        expect(String(e.message)).toContain('invalid_grant');
+        expect(e.status).toBe(400);
+      }
     });
   });
 });

@@ -57,6 +57,10 @@ const client = new PoEApiClient({
   userAgent: 'MyApp/1.0.0 (contact: you@example.com)',
   accessToken: await auth.getAccessToken(),
 });
+
+// Note on scopes:
+// - Use account:* scopes for user login.
+// - Use service:* scopes separately via the Client Credentials grant (confidential clients only) on your server.
 ```
 
 ## Trade Search – Quick Example (Unofficial)

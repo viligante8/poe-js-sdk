@@ -5,6 +5,8 @@ title: Browser Auth (SPA)
 
 Use the high-level SPA helper to implement OAuth Authorization Code + PKCE entirely in the browser. Import from `poe-js-sdk/browser-auth` to avoid bundling any Node-only code.
 
+Scopes: request only `account:*` during user login. Do not request `service:*` in the browser; `service:*` is for confidential clients using the Client Credentials grant on the server.
+
 ## Quick Start
 
 ```ts
@@ -150,4 +152,3 @@ Wrap calls in try/catch to present a helpful UI.
 - Use `http://localhost` or `http://127.0.0.1` in dev and add your redirect URI in the PoE developer portal.
 - Keep `clientSecret` out of browser builds. Use server routes if you need confidential features.
 - For a full Next.js flow with cookie storage and API routes, see the Next.js guide and `examples/nextjs/`.
-
