@@ -52,9 +52,12 @@ export class OAuthHelper {
     const toBase64Url = (data: ArrayBuffer | Uint8Array) => {
       const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
       // Use btoa in browser-like environments
-      if (typeof (globalThis as unknown as { btoa?: unknown }).btoa === 'function') {
+      if (
+        typeof (globalThis as unknown as { btoa?: unknown }).btoa === 'function'
+      ) {
         let binary = '';
-        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]!);
+        for (let index = 0; index < bytes.length; index++)
+          binary += String.fromCodePoint(bytes[index]!);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return (btoa as any)(binary)
           .replaceAll('+', '-')

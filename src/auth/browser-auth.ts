@@ -263,7 +263,7 @@ export function createBrowserAuth(
 
     logout(): void {
       tokenStorage.clear();
-      if (onTokenChange) onTokenChange(undefined);
+      if (onTokenChange) onTokenChange();
     },
 
     setOnTokenChange(handler?: (t: TokenSet | undefined) => void): void {
