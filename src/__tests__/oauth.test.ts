@@ -8,8 +8,8 @@ describe('OAuthHelper', () => {
   };
 
   describe('generatePKCE', () => {
-    it('should generate PKCE parameters', () => {
-      const pkce = OAuthHelper.generatePKCE();
+    it('should generate PKCE parameters', async () => {
+      const pkce = await OAuthHelper.generatePKCE();
 
       expect(pkce.codeVerifier).toBeDefined();
       expect(pkce.codeChallenge).toBeDefined();
@@ -19,9 +19,9 @@ describe('OAuthHelper', () => {
       expect(pkce.codeChallenge.length).toBeGreaterThan(0);
     });
 
-    it('should generate different values each time', () => {
-      const pkce1 = OAuthHelper.generatePKCE();
-      const pkce2 = OAuthHelper.generatePKCE();
+    it('should generate different values each time', async () => {
+      const pkce1 = await OAuthHelper.generatePKCE();
+      const pkce2 = await OAuthHelper.generatePKCE();
 
       expect(pkce1.codeVerifier).not.toBe(pkce2.codeVerifier);
       expect(pkce1.codeChallenge).not.toBe(pkce2.codeChallenge);
@@ -43,9 +43,9 @@ describe('OAuthHelper', () => {
       expect(url).toContain('response_type=code');
     });
 
-    it('should build authorization URL with PKCE', () => {
+    it('should build authorization URL with PKCE', async () => {
       const state = 'test-state';
-      const pkce = OAuthHelper.generatePKCE();
+      const pkce = await OAuthHelper.generatePKCE();
       const url = OAuthHelper.buildAuthUrl(mockConfig, state, pkce);
 
       expect(url).toContain(`code_challenge=${pkce.codeChallenge}`);

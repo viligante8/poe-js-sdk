@@ -22,7 +22,7 @@ const oauthConfig = {
   scopes: ['account:profile', 'account:characters'],
 };
 
-const pkce = OAuthHelper.generatePKCE();
+const pkce = await OAuthHelper.generatePKCE();
 const authUrl = OAuthHelper.buildAuthUrl(oauthConfig, 'random-state', pkce);
 console.log('Visit:', authUrl);
 

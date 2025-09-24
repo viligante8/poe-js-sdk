@@ -44,7 +44,7 @@ import { OAuthHelper } from 'poe-js-sdk';
 
 // 1) Build auth URL (PKCE)
 const state = crypto.randomUUID();
-const pkce = OAuthHelper.generatePKCE();
+const pkce = await OAuthHelper.generatePKCE();
 const url = OAuthHelper.buildAuthUrl({
   clientId: process.env.OAUTH_CLIENT_ID!,
   redirectUri: 'http://127.0.0.1:8080/callback',

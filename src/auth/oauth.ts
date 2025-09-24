@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+// Universal PKCE generation uses Web Crypto when available and falls back to Node.
 
 /**
  * OAuth configuration used by {@link OAuthHelper}.
@@ -35,14 +35,65 @@ export class OAuthHelper {
 
   /**
    * Generate PKCE code verifier and code challenge (S256).
+   *
+   * Breaking change (v2): this method is now async and universal.
+   * - Uses Web Crypto in Edge/Workers/Browsers
+   * - Falls back to Node's crypto in server runtimes
    */
-  static generatePKCE(): PKCEParameters {
-    const codeVerifier = crypto.randomBytes(32).toString('base64url');
-    const codeChallenge = crypto
+  static async generatePKCE(): Promise<PKCEParameters> {
+    type MaybeWebCrypto = {
+      crypto?: {
+        subtle?: SubtleCrypto;
+        getRandomValues?: (array: Uint8Array) => void;
+      };
+    };
+    const g = globalThis as unknown as MaybeWebCrypto;
+
+    const toBase64Url = (data: ArrayBuffer | Uint8Array) => {
+      const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+      // Use btoa in browser-like environments
+      if (typeof (globalThis as unknown as { btoa?: unknown }).btoa === 'function') {
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]!);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (btoa as any)(binary)
+          .replaceAll('+', '-')
+          .replaceAll('/', '_')
+          .replace(/=+$/, '');
+      }
+      // Fallback to Node's Buffer
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const B: any = (globalThis as any).Buffer;
+      if (B && typeof B.from === 'function') {
+        return B.from(bytes)
+          .toString('base64')
+          .replaceAll('+', '-')
+          .replaceAll('/', '_')
+          .replace(/=+$/, '');
+      }
+      throw new Error('No Base64 encoder available');
+    };
+
+    if (g.crypto?.subtle && g.crypto.getRandomValues) {
+      const rnd = new Uint8Array(32);
+      g.crypto.getRandomValues(rnd);
+      const codeVerifier = toBase64Url(rnd);
+      const digest = await g.crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(codeVerifier)
+      );
+      const codeChallenge = toBase64Url(digest);
+      return { codeVerifier, codeChallenge };
+    }
+
+    // Node fallback
+    // Dynamic import to avoid pulling Node-only crypto into edge bundles
+    const nodeCrypto = await import('node:crypto');
+    const codeVerifier = nodeCrypto.randomBytes(32).toString('base64url');
+    const codeChallenge = nodeCrypto
       .createHash('sha256')
       .update(codeVerifier)
       .digest('base64url');
-
     return { codeVerifier, codeChallenge };
   }
 

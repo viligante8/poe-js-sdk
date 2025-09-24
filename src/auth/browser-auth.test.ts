@@ -78,7 +78,7 @@ describe('browser-auth helper', () => {
     const auth = createBrowserAuth(baseConfig);
 
     // Simulate previous login()
-    const pkce = OAuthHelper.generatePKCE();
+    const pkce = await OAuthHelper.generatePKCE();
     const state = crypto.randomUUID();
     globalThis.sessionStorage.setItem(
       'poe_auth_pkce_state',

@@ -30,3 +30,24 @@ const client = new PoEApiClient({
 ```
 
 More in the guides: `Browser Auth (SPA)`, `OAuth 2.1`, and the `examples/` folder (including a Next.js reference implementation).
+
+## Edge/Workers runtimes (Next.js Edge, Cloudflare Workers, Bun, Deno)
+
+Some runtimes don’t provide Node’s `crypto.randomBytes`. As of v2, `OAuthHelper.generatePKCE()` is async and universal, using Web Crypto where available and falling back to Node.
+
+```ts
+import { OAuthHelper } from 'poe-js-sdk';
+
+export async function GET() {
+  const state = crypto.randomUUID();
+  const pkce = await OAuthHelper.generatePKCE();
+  const url = OAuthHelper.buildAuthUrl(
+    { clientId, redirectUri, scopes },
+    state,
+    pkce
+  );
+  // redirect to url...
+}
+```
+
+- Use `createBrowserAuth()` for SPA-only flows.

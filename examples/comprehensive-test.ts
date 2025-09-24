@@ -54,13 +54,13 @@ class ComprehensiveTest {
     console.log('\n=== OAuth Helper Tests ===');
 
     await this.testMethod('OAuthHelper.generatePKCE', async () => {
-      const pkce = OAuthHelper.generatePKCE();
+      const pkce = await OAuthHelper.generatePKCE();
       if (!pkce.codeVerifier || !pkce.codeChallenge) throw new Error('Invalid PKCE');
       return { hasCodeVerifier: !!pkce.codeVerifier, hasCodeChallenge: !!pkce.codeChallenge };
     });
 
     await this.testMethod('OAuthHelper.buildAuthUrl', async () => {
-      const pkce = OAuthHelper.generatePKCE();
+      const pkce = await OAuthHelper.generatePKCE();
       const url = OAuthHelper.buildAuthUrl({
         clientId: CONFIG.clientId,
         redirectUri: CONFIG.redirectUri,

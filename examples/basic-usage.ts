@@ -8,8 +8,8 @@ async function basicExample(): Promise<void> {
     scopes: ['account:profile', 'account:characters', 'account:stashes']
   };
 
-  // Generate PKCE for security
-  const pkce = OAuthHelper.generatePKCE();
+  // Generate PKCE for security (async universal)
+  const pkce = await OAuthHelper.generatePKCE();
   
   // Build auth URL (redirect user here)
   const authUrl = OAuthHelper.buildAuthUrl(oauthConfig, 'random-state', pkce);

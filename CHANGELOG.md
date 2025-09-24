@@ -54,3 +54,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Docs
 - Clarify usage of the browser-only subpath export: import from `poe-js-sdk/browser-auth` in SPAs.
+## [2.0.0] - 2025-09-24
+
+### Changed
+- BREAKING: `OAuthHelper.generatePKCE()` is now async and universal. It uses Web Crypto in Edge/Workers/Browsers and falls back to Node's crypto in server runtimes. Update your code to `await OAuthHelper.generatePKCE()`.
+- Removed `generatePKCEAsync()` (introduced temporarily); the single `generatePKCE()` method now covers all runtimes.
+- Next.js example updated to call the async PKCE generator.
+
+### Docs
+- Updated README and website docs to reflect the async PKCE API and Edge compatibility notes.

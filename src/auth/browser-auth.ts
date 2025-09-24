@@ -181,7 +181,7 @@ export function createBrowserAuth(
       return { codeVerifier, codeChallenge };
     }
     // Fallback to OAuthHelper (Node environments)
-    return OAuthHelper.generatePKCE();
+    return await OAuthHelper.generatePKCE();
   }
 
   return {

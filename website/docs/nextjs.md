@@ -41,7 +41,7 @@ import { OAuthHelper } from 'poe-js-sdk';
 
 export async function GET() {
   const state = crypto.randomUUID();
-  const pkce = OAuthHelper.generatePKCE();
+  const pkce = await OAuthHelper.generatePKCE();
 
   const url = OAuthHelper.buildAuthUrl(
     {
@@ -158,4 +158,3 @@ export default function Page() {
 ```
 
 See the full working version in `examples/nextjs/` for additional cookie flags, error handling, and production hardening.
-
