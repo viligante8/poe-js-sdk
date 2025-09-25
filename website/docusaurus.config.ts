@@ -58,7 +58,7 @@ const config: Config = {
         entryPoints: ['../src/index.ts'],
         tsconfig: '../tsconfig.json',
         out: 'api',
-        routeBasePath: 'api',
+        basePath: 'api',
         readme: 'none',
         sidebar: { pretty: true },
         excludePrivate: true,

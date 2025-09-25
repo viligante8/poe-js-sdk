@@ -26,12 +26,12 @@ describe('PoEApiClient logging', () => {
 
   it('logs cURL for requests at headers level with redacted auth', async () => {
     const lines: string[] = [];
-    // const client = new PoEApiClient({
-    //   userAgent: 'OAuth TestApp/1.0.0 (contact: test@example.com)',
-    //   accessToken: 'secret-token',
-    //   logLevel: 'headers',
-    //   logger: (l) => lines.push(l),
-    // });
+    new PoEApiClient({
+      userAgent: 'OAuth TestApp/1.0.0 (contact: test@example.com)',
+      accessToken: 'secret-token',
+      logLevel: 'headers',
+      logger: (l) => lines.push(l),
+    });
 
     // request interceptor registered
     expect(mockAxiosInstance.interceptors.request.use).toHaveBeenCalled();
