@@ -65,7 +65,7 @@ const config: Config = {
       },
       items: [
         { type: 'docSidebar', sidebarId: 'tutorialSidebar', position: 'left', label: 'Docs' },
-        { to: '/api', label: 'API', position: 'left' },
+        { type: 'doc', docId: 'api/index', label: 'API', position: 'left' },
         {
           href: 'https://github.com/viligante8/poe-js-sdk',
           label: 'GitHub',

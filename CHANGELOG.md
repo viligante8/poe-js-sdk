@@ -81,4 +81,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Docs
 - Next.js and OAuth docs updated to show passing `userAgent` during token requests.
+- Next.js examples updated to use `import { cookies } from 'next/headers'` instead of dynamic imports.
 - Getting Started examples now use a compliant `User-Agent` string (must start with `OAuth ` and include contact info).

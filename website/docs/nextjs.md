@@ -64,15 +64,16 @@ export async function GET() {
 
 ```ts title="app/api/auth/callback/route.ts"
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { OAuthHelper } from 'poe-js-sdk';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get('code');
   const returnedState = url.searchParams.get('state');
-  const cookies = (await import('next/headers')).cookies();
-  const state = cookies.get('oauth_state')?.value;
-  const verifier = cookies.get('pkce_verifier')?.value;
+  const cookieStore = cookies();
+  const state = cookieStore.get('oauth_state')?.value;
+  const verifier = cookieStore.get('pkce_verifier')?.value;
 
   if (!code || !verifier || state !== returnedState) {
     return new NextResponse('Invalid OAuth state or missing code', { status: 400 });
@@ -105,11 +106,12 @@ export async function GET(req: Request) {
 
 ```ts title="app/api/auth/refresh/route.ts"
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { OAuthHelper } from 'poe-js-sdk';
 
 export async function POST() {
-  const cookies = (await import('next/headers')).cookies();
-  const refreshToken = cookies.get('refresh_token')?.value;
+  const cookieStore = cookies();
+  const refreshToken = cookieStore.get('refresh_token')?.value;
   if (!refreshToken) return new NextResponse('Missing refresh token', { status: 401 });
 
   const tokens = await OAuthHelper.refreshToken({
@@ -131,11 +133,12 @@ export async function POST() {
 
 ```ts title="app/api/profile/route.ts"
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { PoEApiClient } from 'poe-js-sdk';
 
 export async function GET() {
-  const cookies = (await import('next/headers')).cookies();
-  const token = cookies.get('access_token')?.value;
+  const cookieStore = cookies();
+  const token = cookieStore.get('access_token')?.value;
   if (!token) return new NextResponse('Unauthorized', { status: 401 });
 
   const client = new PoEApiClient({
