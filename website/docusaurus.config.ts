@@ -12,7 +12,7 @@ const config: Config = {
   projectName: 'poe-js-sdk',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
-  trailingSlash: false,
+  trailingSlash: true,
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
@@ -37,6 +37,14 @@ const config: Config = {
   ],
 
   plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          { from: '/api', to: '/api/' },
+        ],
+      },
+    ],
     [
       'docusaurus-plugin-typedoc',
       {
@@ -83,7 +91,7 @@ const config: Config = {
       },
       items: [
         { type: 'docSidebar', sidebarId: 'tutorialSidebar', position: 'left', label: 'Docs' },
-        { to: '/api', label: 'API', position: 'left' },
+        { to: '/api/', label: 'API', position: 'left' },
         { type: 'search', position: 'right' },
         {
           href: 'https://github.com/viligante8/poe-js-sdk',
