@@ -1,6 +1,6 @@
 import type { Config } from '@docusaurus/types';
 import type { ThemeConfig } from '@docusaurus/preset-classic';
-import {themes as prismThemes} from 'prism-react-renderer';
+import { themes as prismThemes } from 'prism-react-renderer';
 
 const config: Config = {
   title: 'PoE JS SDK',
@@ -24,9 +24,11 @@ const config: Config = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.ts'),
-          editUrl: 'https://github.com/viligante8/poe-js-sdk/edit/main/website/',
-          routeBasePath: '/',
+          editUrl:
+            'https://github.com/viligante8/poe-js-sdk/edit/main/website/',
+          basePath: '/',
           includeCurrentVersion: true,
+          remarkPlugins: [require('./src/remark/parametersToTable')],
         },
         blog: false,
         theme: {
@@ -40,9 +42,11 @@ const config: Config = {
     [
       'docusaurus-plugin-typedoc',
       {
+        id: 'api',
         entryPoints: ['../src/index.ts'],
         tsconfig: '../tsconfig.json',
-        out: 'docs/api',
+        out: 'api',
+        basePath: 'api',
         readme: 'none',
         sidebar: { pretty: true },
         excludePrivate: true,
@@ -52,11 +56,11 @@ const config: Config = {
         searchInComments: true,
         // Make CI resilient: don't fail on TS errors and don't wipe existing docs
         skipErrorChecking: true,
-        cleanOutputDir: false,
+        cleanOutputDir: true,
         // Help resolve Node builtins like 'node:crypto' in the docs build env
         compilerOptions: {
           moduleResolution: 'Bundler',
-          types: ['node']
+          types: ['node'],
         },
       },
     ],
@@ -96,7 +100,12 @@ const config: Config = {
         src: 'img/logo.svg',
       },
       items: [
-        { type: 'docSidebar', sidebarId: 'tutorialSidebar', position: 'left', label: 'Docs' },
+        {
+          type: 'docSidebar',
+          sidebarId: 'tutorialSidebar',
+          position: 'left',
+          label: 'Docs',
+        },
         { to: '/api/', label: 'API', position: 'left' },
         { type: 'search', position: 'right' },
         {
@@ -131,14 +140,23 @@ const config: Config = {
         {
           title: 'Community',
           items: [
-            { label: 'Issues', href: 'https://github.com/viligante8/poe-js-sdk/issues' },
+            {
+              label: 'Issues',
+              href: 'https://github.com/viligante8/poe-js-sdk/issues',
+            },
           ],
         },
         {
           title: 'More',
           items: [
-            { label: 'GitHub', href: 'https://github.com/viligante8/poe-js-sdk' },
-            { label: 'Changelog', href: 'https://github.com/viligante8/poe-js-sdk/blob/main/CHANGELOG.md' },
+            {
+              label: 'GitHub',
+              href: 'https://github.com/viligante8/poe-js-sdk',
+            },
+            {
+              label: 'Changelog',
+              href: 'https://github.com/viligante8/poe-js-sdk/blob/main/CHANGELOG.md',
+            },
           ],
         },
       ],

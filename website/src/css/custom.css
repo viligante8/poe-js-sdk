@@ -73,6 +73,23 @@ code {
   border-top: 1px solid var(--ifm-color-emphasis-200);
 }
 
+/* Parameter tables under "Parameters" heading */
+.theme-doc-markdown h4 + table {
+  margin-top: 0.4rem;
+}
+.theme-doc-markdown h4 + table th,
+.theme-doc-markdown h4 + table td {
+  padding: 0.35rem 0.5rem;
+  vertical-align: top;
+}
+.theme-doc-markdown h4 + table td:nth-child(1) { /* Name */
+  white-space: nowrap;
+  width: 1%;
+}
+.theme-doc-markdown h4 + table td:nth-child(2) code { /* Type */
+  background: none;
+}
+
 /* Breadcrumbs subtle */
 .breadcrumbs {
   border-bottom: 1px solid var(--ifm-color-emphasis-200);
