@@ -69,11 +69,6 @@ const config: Config = {
         // Make CI resilient: don't fail on TS errors and don't wipe existing docs
         skipErrorChecking: true,
         cleanOutputDir: true,
-        // Help resolve Node builtins like 'node:crypto' in the docs build env
-        compilerOptions: {
-          moduleResolution: 'Bundler',
-          types: ['node'],
-        },
       },
     ],
     // Local search (fallback if Algolia isn't configured)

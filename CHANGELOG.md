@@ -83,3 +83,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Next.js and OAuth docs updated to show passing `userAgent` during token requests.
 - Next.js examples updated to use `import { cookies } from 'next/headers'` instead of dynamic imports.
 - Getting Started examples now use a compliant `User-Agent` string (must start with `OAuth ` and include contact info).
+
+## [2.1.0] - 2025-09-25
+
+### Added
+- Request/response logging in `PoEApiClient` with cURL output for easy Postman import.
+  - New `ClientConfig` options: `logLevel` (`none` | `basic` | `headers` | `body` | `debug`), `logger`, and `redactHeaders`.
+  - Logs include method/URL/status/duration; `headers` adds a ready-to-copy cURL; `body` also prints JSON payloads (truncated).
+- Docs: new "Logging & cURL" guide with examples (`website/docs/logging.md`).
+- API docs density: parameters rendered as compact tables via a remark plugin; tighter spacing and dark theme polish.
+- Local search for docs (fallback to Algolia), Prism themes configured.
+
+### Changed
+- Docs hosting reliability on GitHub Pages: use `trailingSlash: true` and static redirect for `/api` to `/poe-js-sdk/api/`.
+- Isolated TypeDoc output under `/api` to avoid cross-deps with main docs during CI builds.
+
+### Tests
+- Added tests for cURL logging and redaction behavior in `PoEApiClient`.

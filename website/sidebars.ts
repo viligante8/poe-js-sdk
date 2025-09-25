@@ -22,6 +22,7 @@ const sidebars: SidebarsConfig = {
         'realms',
         'security',
         'error-handling',
+        'logging',
         'helpers',
       ],
     },

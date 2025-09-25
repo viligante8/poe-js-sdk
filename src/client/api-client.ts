@@ -1,5 +1,15 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios';
 import { PoEApiError } from '../errors/api-error';
+import {
+  buildCurl,
+  headersToObject,
+  redactHeaderValues,
+} from '../utils/logging';
 import type {
   Profile,
   League,
@@ -21,6 +31,19 @@ export interface ClientConfig {
   accessToken?: string;
   userAgent: string;
   baseURL?: string;
+  /**
+   * Optional logging level for HTTP requests.
+   * - 'none'   : no logs
+   * - 'basic'  : method + URL + status + duration
+   * - 'headers': basic + request headers and cURL snippet
+   * - 'body'   : headers + request/response bodies (truncated)
+   * - 'debug'  : same as 'body' (reserved for future extra detail)
+   */
+  logLevel?: 'none' | 'basic' | 'headers' | 'body' | 'debug';
+  /** Custom logger (defaults to console.log) */
+  logger?: (line: string) => void;
+  /** Headers to redact in logs (case-insensitive). Defaults: ['authorization', 'cookie'] */
+  redactHeaders?: string[];
 }
 
 /**
@@ -37,6 +60,9 @@ export class PoEApiClient {
   private client: AxiosInstance;
   private rateLimitInfo: RateLimitInfo = {};
   private nextAvailableAt = 0; // epoch ms when requests may resume
+  private logLevel: NonNullable<ClientConfig['logLevel']> = 'none';
+  private logger: (line: string) => void = console.log;
+  private redactHeaders: string[] = ['authorization', 'cookie'];
 
   /**
    * Create a new PoE API client.
@@ -63,6 +89,12 @@ export class PoEApiClient {
       },
     });
 
+    // Logging config
+    if (config.logLevel) this.logLevel = config.logLevel;
+    if (config.logger) this.logger = config.logger;
+    if (config.redactHeaders && config.redactHeaders.length > 0)
+      this.redactHeaders = config.redactHeaders.map((h) => h.toLowerCase());
+
     // Respect rate limits by waiting before requests when needed (guarded for tests)
     if (
       (
@@ -77,6 +109,14 @@ export class PoEApiClient {
           const waitMs = this.nextAvailableAt - now;
           await new Promise((r) => setTimeout(r, waitMs));
         }
+        // Attach start time for duration measurement
+        (
+          cfg as AxiosRequestConfig & { metadata?: { start: number } }
+        ).metadata = {
+          start: Date.now(),
+        };
+        // Log request
+        this.maybeLogRequest(cfg);
         return cfg;
       });
     }
@@ -85,12 +125,14 @@ export class PoEApiClient {
       (response) => {
         this.updateRateLimitInfo(response);
         this.updateWaitFromHeaders(response);
+        this.maybeLogResponse(response);
         return response;
       },
-      (error) => {
+      (error: AxiosError) => {
         if (error.response) {
           this.updateRateLimitInfo(error.response);
           this.updateWaitFromHeaders(error.response);
+          this.maybeLogError(error);
           // Handle 429 Too Many Requests
           if (error.response.status === 429) {
             const retryAfter = error.response.headers['retry-after'];
@@ -132,6 +174,103 @@ export class PoEApiClient {
         throw error;
       }
     );
+  }
+
+  private maybeLogRequest(cfg: AxiosRequestConfig): void {
+    if (this.logLevel === 'none') return;
+    const method = (cfg.method || 'GET').toUpperCase();
+    const url = new URL(
+      cfg.url || '',
+      cfg.baseURL || this.client.defaults.baseURL || ''
+    );
+    // Merge params into URL
+    const parameters = cfg.params as Record<string, unknown> | undefined;
+    if (parameters && typeof parameters === 'object') {
+      for (const [k, v] of Object.entries(parameters)) {
+        if (v === undefined || v === null) continue;
+        url.searchParams.set(k, String(v));
+      }
+    }
+    const headersObject = headersToObject(cfg.headers);
+    const redacted = redactHeaderValues(headersObject, this.redactHeaders);
+    const summary = `[PoE SDK] -> ${method} ${url.toString()}`;
+    this.logger(summary);
+    if (this.logLevel === 'basic') return;
+    // Build cURL
+    const curl = buildCurl({ ...cfg, url: url.toString(), headers: redacted });
+    this.logger(curl);
+    if (this.logLevel === 'headers') return;
+    // Body (truncate)
+    if (cfg.data !== undefined) {
+      const bodyString =
+        typeof cfg.data === 'string' ? cfg.data : JSON.stringify(cfg.data);
+      const truncated =
+        bodyString.length > 4000 ? bodyString.slice(0, 4000) + '…' : bodyString;
+      this.logger(`[PoE SDK] request body: ${truncated}`);
+    }
+  }
+
+  private maybeLogResponse(response: AxiosResponse): void {
+    if (this.logLevel === 'none') return;
+    const cfg = response.config as AxiosRequestConfig & {
+      metadata?: { start?: number };
+    };
+    const duration = cfg.metadata?.start
+      ? Date.now() - cfg.metadata.start
+      : undefined;
+    const method = (cfg.method || 'GET').toUpperCase();
+    const url = cfg.url || '';
+    const line = `[PoE SDK] <- ${response.status} ${method} ${url}${
+      duration === undefined ? '' : ` (${duration}ms)`
+    }`;
+    this.logger(line);
+    if (this.logLevel === 'basic' || this.logLevel === 'headers') return;
+    const data = response.data;
+    try {
+      const json = typeof data === 'string' ? data : JSON.stringify(data);
+      const truncated = json.length > 4000 ? json.slice(0, 4000) + '…' : json;
+      this.logger(`[PoE SDK] response body: ${truncated}`);
+    } catch {
+      // ignore
+    }
+  }
+
+  private maybeLogError(error: AxiosError): void {
+    if (this.logLevel === 'none') return;
+    const cfg = error.config as AxiosRequestConfig & {
+      metadata?: { start?: number };
+    };
+    const duration = cfg?.metadata?.start
+      ? Date.now() - (cfg.metadata.start as number)
+      : undefined;
+    const method = (cfg?.method || 'GET').toUpperCase();
+    const url = cfg?.url || '';
+    const status = error.response?.status;
+    const line = `[PoE SDK] !! ${status ?? 'ERR'} ${method} ${url}${
+      duration === undefined ? '' : ` (${duration}ms)`
+    }`;
+    this.logger(line);
+    if (cfg) {
+      const headersObject = headersToObject(cfg.headers);
+      const redacted = redactHeaderValues(headersObject, this.redactHeaders);
+      const fullUrl = new URL(
+        cfg.url || '',
+        cfg.baseURL || this.client.defaults.baseURL || ''
+      ).toString();
+      this.logger(buildCurl({ ...cfg, url: fullUrl, headers: redacted }));
+      if (
+        (this.logLevel === 'body' || this.logLevel === 'debug') &&
+        cfg.data !== undefined
+      ) {
+        const bodyString =
+          typeof cfg.data === 'string' ? cfg.data : JSON.stringify(cfg.data);
+        const truncated =
+          bodyString.length > 4000
+            ? bodyString.slice(0, 4000) + '…'
+            : bodyString;
+        this.logger(`[PoE SDK] request body: ${truncated}`);
+      }
+    }
   }
 
   private updateRateLimitInfo(response: AxiosResponse): void {
