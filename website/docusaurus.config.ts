@@ -1,5 +1,6 @@
 import type { Config } from '@docusaurus/types';
 import type { ThemeConfig } from '@docusaurus/preset-classic';
+import {themes as prismThemes} from 'prism-react-renderer';
 
 const config: Config = {
   title: 'PoE JS SDK',
@@ -28,7 +29,9 @@ const config: Config = {
           includeCurrentVersion: true,
         },
         blog: false,
-        theme: {},
+        theme: {
+          customCss: require.resolve('./src/css/custom.css'),
+        },
       },
     ],
   ],
@@ -45,8 +48,20 @@ const config: Config = {
         excludePrivate: true,
         excludeProtected: false,
         excludeInternal: true,
-        categorizeByGroup: true,
+        categorizeByGroup: false,
         searchInComments: true,
+      },
+    ],
+    // Local search (fallback if Algolia isn't configured)
+    [
+      require.resolve('@easyops-cn/docusaurus-search-local'),
+      {
+        hashed: true,
+        highlightSearchTermsOnTargetPage: true,
+        docsRouteBasePath: '/',
+        indexDocs: true,
+        indexBlog: false,
+        removeDefaultStopWordFilter: false,
       },
     ],
   ],
@@ -57,6 +72,9 @@ const config: Config = {
       disableSwitch: false,
       respectPrefersColorScheme: false,
     },
+    breadcrumbs: {
+      autoGenerate: true,
+    },
     navbar: {
       title: 'PoE JS SDK',
       logo: {
@@ -66,12 +84,23 @@ const config: Config = {
       items: [
         { type: 'docSidebar', sidebarId: 'tutorialSidebar', position: 'left', label: 'Docs' },
         { to: '/api', label: 'API', position: 'left' },
+        { type: 'search', position: 'right' },
         {
           href: 'https://github.com/viligante8/poe-js-sdk',
           label: 'GitHub',
           position: 'right',
         },
       ],
+    },
+    // Optional Algolia (set real values to use)
+    // algolia: {
+    //   appId: 'APP_ID',
+    //   apiKey: 'API_KEY',
+    //   indexName: 'INDEX_NAME',
+    // },
+    tableOfContents: {
+      minHeadingLevel: 2,
+      maxHeadingLevel: 4,
     },
     footer: {
       style: 'dark',
@@ -102,6 +131,8 @@ const config: Config = {
       copyright: `Copyright © ${new Date().getFullYear()} Vito Pistelli. Built with Docusaurus.`,
     },
     prism: {
+      theme: prismThemes.github,
+      darkTheme: prismThemes.dracula,
       additionalLanguages: ['bash', 'json', 'typescript'],
     },
   } satisfies ThemeConfig,

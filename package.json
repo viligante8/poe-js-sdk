@@ -38,6 +38,11 @@
     "docs:serve": "npm --prefix website run serve",
     "docs:deploy": "npm --prefix website run deploy"
   },
+  "scriptsRelease": "Added by assistant: release helpers",
+  "_": "The following release scripts bump version, create a tag, and push with tags",
+  "release:patch": "npm version patch -m \"chore(release): %s\" && git push --follow-tags",
+  "release:minor": "npm version minor -m \"chore(release): %s\" && git push --follow-tags",
+  "release:major": "npm version major -m \"chore(release): %s\" && git push --follow-tags",
   "keywords": [
     "path-of-exile",
     "poe",

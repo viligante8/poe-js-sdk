@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --ifm-color-primary: #ec7211;
+  --ifm-navbar-background-color: #0f1111;
+  --ifm-navbar-link-color: #ffffff;
+  --ifm-navbar-shadow: none;
+  --ifm-menu-link-sublist-icon: none;
+  --doc-sidebar-width: 300px;
+  --ifm-container-width-xl: 1200px;
+  --ifm-font-family-base: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+[data-theme='dark'] {
+  --ifm-background-color: #0b0d0d;
+  --ifm-background-surface-color: #111314;
+  --ifm-color-emphasis-200: #2a2e2f;
+  --ifm-color-emphasis-300: #363b3d;
+}
+
+/* Navbar - dark, compact */
+.navbar {
+  background: var(--ifm-navbar-background-color);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+.navbar__brand, .navbar__link {
+  color: var(--ifm-navbar-link-color);
+}
+.navbar__link:hover, .navbar__link--active {
+  color: #fff;
+}
+
+/* Sidebar + TOC widths and borders */
+.theme-doc-sidebar-container {
+  border-right: 1px solid var(--ifm-color-emphasis-200);
+}
+.theme-doc-toc-desktop {
+  width: 280px;
+}
+
+/* Typography density */
+.markdown h1, .markdown h2, .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.markdown h2 { margin-top: 1.1rem; }
+.markdown p {
+  margin: 0.4rem 0 0.8rem;
+  line-height: 1.45;
+}
+.markdown ul, .markdown ol {
+  margin: 0.3rem 0 0.8rem 1.25rem;
+}
+
+/* Code blocks and inline code */
+code {
+  font-size: 0.9em;
+}
+.theme-code-block {
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* Tables - compact and bordered */
+.markdown table {
+  font-size: 0.95em;
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+.markdown table thead th {
+  background: var(--ifm-color-emphasis-100);
+}
+.markdown table th, .markdown table td {
+  padding: 0.5rem 0.6rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* Breadcrumbs subtle */
+.breadcrumbs {
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Right TOC - compact */
+.table-of-contents ul {
+  margin: 0.25rem 0 0.25rem 0.8rem;
+}
+.table-of-contents li {
+  margin: 0.15rem 0;
+}
+
+/* Doc content max width */
+.container .row .col[class*='docItemCol_'] {
+  max-width: 780px;
+}
+
+/* Links */
+a {
+  text-underline-offset: 2px;
+}
+a:not(.button):hover {
+  text-decoration: underline;
+}
+
+/* Sidebar link density */
+.menu__link {
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+.menu__list .menu__list .menu__link { /* nested */
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+/* Search input contrast (Algolia/local) */
+.DocSearch-Button, .theme-doc-sidebar-search {
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* API (TypeDoc) tweaks */
+.theme-doc-markdown h2 ~ h3 {
+  margin-top: 0.9rem;
+}
+.theme-doc-markdown .tsd-parameter-list, .theme-doc-markdown .tsd-parameters, .theme-doc-markdown .tsd-returns {
+  margin: 0.4rem 0 0.6rem;
+}
