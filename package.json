@@ -1,6 +1,6 @@
 {
   "name": "poe-js-sdk",
-  "version": "2.0.4",
+  "version": "2.0.6",
   "type": "module",
   "description": "TypeScript SDK for the Path of Exile API",
   "main": "./dist/index.cjs",
