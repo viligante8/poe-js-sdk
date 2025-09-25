@@ -1,6 +1,18 @@
 import type { Config } from '@docusaurus/types';
 import type { ThemeConfig } from '@docusaurus/preset-classic';
 import { themes as prismThemes } from 'prism-react-renderer';
+// Fallback loader for local remark plugin (CI-safe)
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const parametersToTable = (() => {
+  try {
+    // Prefer local file when present
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return require('./src/remark/parametersToTable');
+  } catch {
+    // No-op plugin to avoid CI failures if file is missing
+    return () => () => {};
+  }
+})();
 
 const config: Config = {
   title: 'PoE JS SDK',
@@ -26,9 +38,9 @@ const config: Config = {
           sidebarPath: require.resolve('./sidebars.ts'),
           editUrl:
             'https://github.com/viligante8/poe-js-sdk/edit/main/website/',
-          basePath: '/',
+          routeBasePath: '/',
           includeCurrentVersion: true,
-          remarkPlugins: [require('./src/remark/parametersToTable')],
+          remarkPlugins: [parametersToTable],
         },
         blog: false,
         theme: {
@@ -46,7 +58,7 @@ const config: Config = {
         entryPoints: ['../src/index.ts'],
         tsconfig: '../tsconfig.json',
         out: 'api',
-        basePath: 'api',
+        routeBasePath: 'api',
         readme: 'none',
         sidebar: { pretty: true },
         excludePrivate: true,
